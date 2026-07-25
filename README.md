@@ -4,4 +4,4 @@
 
 ## Coordinador
 
-## Tratar de apoyar y trabajar proyecto de forma grupal y responsable
+## Tratar de apoyar y trabajar proyecto de forma grupal y responsables
