@@ -1,7 +1,7 @@
 # Proyecto
 
-# JOSE CARLOS SOTO
+# Usuario 1
 
-## Coordinador
+## desarrollador
 
-## Tratar de apoyar y trabajar proyecto de forma grupal y responsables
+## Trabajar en la creacion del sistema
