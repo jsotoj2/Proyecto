@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Becas Nacionales | Panel
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+
+<body id="dashboardPage" class="dashboard-body">
+
+
+    <div class="dashboard-layout">
+
+
+        <!-- ========================================= -->
+        <!-- MENÚ LATERAL -->
+        <!-- ========================================= -->
+
+        <aside
+            id="sidebar"
+            class="sidebar"
+        >
+
+            <!--
+                El menú se genera automáticamente
+                dependiendo del rol del usuario.
+            -->
+
+        </aside>
+
+
+        <!-- ========================================= -->
+        <!-- CONTENIDO PRINCIPAL -->
+        <!-- ========================================= -->
+
+        <div class="dashboard-main">
+
+
+            <!-- ========================================= -->
+            <!-- BARRA SUPERIOR -->
+            <!-- ========================================= -->
+
+            <header class="topbar">
+
+
+                <div class="topbar-title">
+
+                    <span class="small-label">
+                        Plataforma Nacional de Becas
+                    </span>
+
+                    <h2 id="pageTitle">
+                        Panel
+                    </h2>
+
+                </div>
+
+
+                <div
+                    id="userBadge"
+                    class="user-badge"
+                >
+
+                    <!-- Usuario generado por JS -->
+
+                </div>
+
+
+            </header>
+
+
+            <!-- ========================================= -->
+            <!-- CONTENIDO DINÁMICO -->
+            <!-- ========================================= -->
+
+            <main
+                id="mainContent"
+                class="dashboard-content"
+            >
+
+                <!--
+                    Aquí aparecerán:
+                    Inicio
+                    Fase 1
+                    Fase 2
+                    Fase 3
+                    Fase 4
+                    Estado de beca
+                    Mi cuenta
+                -->
+
+            </main>
+
+
+        </div>
+
+
+    </div>
+
+
+    <!-- ============================================= -->
+    <!-- LIBRERÍA PARA GENERAR PDF -->
+    <!-- ============================================= -->
+
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"
+    ></script>
+
+
+    <!-- ============================================= -->
+    <!-- ARCHIVOS DEL SISTEMA -->
+    <!-- IMPORTANTE: DEBEN IR EN ESTE ORDEN -->
+    <!-- ============================================= -->
+
+    <script src="datos.js"></script>
+
+    <script src="aspirante.js"></script>
+
+    <script src="admin.js"></script>
+
+    <script src="superadmin.js"></script>
+
+    <script src="app.js"></script>
+
+
+</body>
+
+</html>
