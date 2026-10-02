@@ -72,7 +72,7 @@
                         <form id="quickCheckForm" class="quick-form">
                             <div class="form-group">
                                 <label for="cuiInput">CUI / DPI del Estudiante</label>
-                                <input type="text" id="cuiInput" placeholder="Ej. 2540123450101" required maxlength="13">
+                                <input type="text" id="cuiInput" placeholder="Ej. 2540123450101" required maxlength="13" minlength="13" pattern="[0-9]{13}">
                             </div>
                             <button type="submit" class="btn btn-primary btn-block">Buscar Expediente</button>
                         </form>
@@ -90,7 +90,7 @@
                     <p class="section-subtitle">Selecciona el nivel educativo al que deseas postularte e inicia tu registro.</p>
                 </div>
 
-                <div class="filter-tabs">
+                <p class="prototype-notice">Las solicitudes y los PDF se guardan en la base de datos del proyecto.</p><div id="registrationResult" class="status-card hidden" role="status" tabindex="-1"></div><div class="filter-tabs">
                     <button class="filter-btn active" data-filter="all">Todas</button>
                     <button class="filter-btn" data-filter="medio">Nivel Medio</button>
                     <button class="filter-btn" data-filter="universitario">Universitaria</button>
@@ -161,7 +161,7 @@
                     </div>
                     <div class="consult-search">
                         <div class="input-group">
-                            <input type="text" id="searchExpediente" placeholder="Ingresa tu No. de Expediente (ej. EXP-2026-99)" class="form-control">
+                            <input type="text" id="searchExpediente" placeholder="Ingresa tu No. de Expediente" class="form-control">
                             <button id="btnSearchExp" class="btn btn-primary"><i class="fa-solid fa-search"></i> Consultar</button>
                         </div>
                         <div id="fullResultCard" class="status-card hidden"></div>
@@ -189,7 +189,7 @@
                 </div>
                 <div class="form-group">
                     <label for="studentCui">CUI (DPI)</label>
-                    <input type="text" id="studentCui" required placeholder="13 dígitos" maxlength="13">
+                    <input type="text" id="studentCui" required placeholder="13 dígitos" maxlength="13" minlength="13" pattern="[0-9]{13}">
                 </div>
                 <div class="form-group">
                     <label for="studentFile">Cargar Documentación (PDF)</label>
@@ -231,6 +231,7 @@
         </div>
     </footer>
 
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>
+
