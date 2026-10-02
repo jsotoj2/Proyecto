@@ -1,0 +1,9 @@
+# Credenciales locales y certificados privados
+.env
+.env.*
+!.env.example
+**/certificados/
+*.key
+
+# Dependencias instaladas
+node_modules/

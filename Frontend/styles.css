@@ -560,3 +560,8 @@ body {
         display: block;
     }
 }
+.prototype-notice { margin-bottom: 16px; color: var(--gray-600); }
+#registrationResult { margin-bottom: 24px; overflow-wrap: anywhere; }
+#quickResult, #fullResultCard { overflow-wrap: anywhere; }
+#quickResult section + section, #fullResultCard section + section { margin-top: 20px; }
+button:disabled { opacity: 0.65; cursor: wait; }
