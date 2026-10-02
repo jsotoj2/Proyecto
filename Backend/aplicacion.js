@@ -7,11 +7,19 @@ function responder(res, estado, contenido) {
     res.writeHead(estado, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
     res.end(JSON.stringify(contenido));
 }
-export function crearAplicacion(servicio, comprobarConexion) {
+export function crearAplicacion(servicio, comprobarConexion, plataformaApi=null, autenticar=null) {
     return async (req, res) => {
         res.setHeader('X-Content-Type-Options', 'nosniff');
         try {
             const url = new URL(req.url, 'http://localhost');
+            if (plataformaApi && await plataformaApi(req,res)) return;
+            if (autenticar && url.pathname.startsWith('/api/solicitudes')) {
+                const actor=await autenticar(req);
+                if(!actor) return responder(res,401,{error:'Inicia sesión para continuar.'});
+                if(req.method==='POST') return responder(res,410,{error:'Registra la solicitud desde el panel por fases.'});
+                if(url.pathname==='/api/solicitudes' && actor.rol==='aspirante' && url.searchParams.get('cui')!==actor.dpi) return responder(res,403,{error:'Solo puedes consultar tus expedientes.'});
+                if(url.pathname.startsWith('/api/solicitudes/') && actor.rol==='aspirante'){const s=await servicio.consultarPorExpediente(decodeURIComponent(url.pathname.slice('/api/solicitudes/'.length)));if(s && s.cui!==actor.dpi)return responder(res,403,{error:'Solo puedes consultar tus expedientes.'});}
+            }
             if (req.method === 'GET' && url.pathname === '/api/salud') {
                 await comprobarConexion();
                 return responder(res, 200, { estado: 'ok', baseDatos: 'MySQL' });

@@ -1,237 +1,415 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plataforma Nacional de Becas | Ministerio de Educación</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Becas Nacionales | Iniciar sesión
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="./css/style.css"
+    >
+
 </head>
-<body>
 
-    <header class="navbar">
-        <div class="container nav-container">
-            <a href="#" class="brand">
-                <i class="fa-solid fa-graduation-cap brand-icon"></i>
-                <div class="brand-text">
-                    <span class="brand-title">BecasNacionales</span>
-                    <span class="brand-sub">Ministerio de UMG</span>
+
+<body class="login-body">
+
+
+    <!-- ========================================= -->
+    <!-- CONTENEDOR PRINCIPAL -->
+    <!-- ========================================= -->
+
+    <main class="login-layout">
+
+
+        <!-- ========================================= -->
+        <!-- LADO IZQUIERDO -->
+        <!-- INFORMACIÓN DE LA PLATAFORMA -->
+        <!-- ========================================= -->
+
+        <section class="login-brand">
+
+            <div class="brand-content">
+
+
+                <div class="brand-icon">
+                    B
                 </div>
-            </a>
-            <nav class="nav-menu" id="navMenu">
-                <a href="#inicio" class="nav-link active">Inicio</a>
-                <a href="#convocatorias" class="nav-link">Convocatorias</a>
-                <a href="#consultar" class="nav-link">Consultar Estado</a>
-                <a href="#contacto" class="nav-link">Contacto</a>
-            </nav>
-            <div class="nav-actions">
-                <button class="btn btn-outline" id="openAuthBtn"><i class="fa-solid fa-user"></i> Iniciar Sesión</button>
-                <a href="#convocatorias" class="btn btn-primary">Postularse</a>
-            </div>
-            <button class="hamburger" id="hamburgerBtn" aria-label="Abrir Menú">
-                <i class="fa-solid fa-bars"></i>
-            </button>
-        </div>
-    </header>
 
-    <main>
-        <section id="inicio" class="hero">
-            <div class="container hero-container">
-                <div class="hero-content">
-                    <span class="badge"><i class="fa-solid fa-bullhorn"></i> Convocatoria 2026 Abierta</span>
-                    <h1 class="hero-title">Construye tu futuro académico con una Beca Nacional</h1>
-                    <p class="hero-description">
-                        Gestiona, aplica y dale seguimiento a tu solicitud de beca de nivel medio, universitario y posgrado de forma transparente, digital y rápida.
+
+                <h1>
+                    Becas Nacionales
+                </h1>
+
+
+                <p>
+                    Plataforma Nacional para la Gestión
+                    Integral de Becas.
+                </p>
+
+
+                <div class="brand-points">
+
+                    <span>
+                        ✓ Solicitudes digitales
+                    </span>
+
+                    <span>
+                        ✓ Seguimiento por fases
+                    </span>
+
+                    <span>
+                        ✓ Gestión administrativa
+                    </span>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+        <!-- ========================================= -->
+        <!-- LADO DERECHO -->
+        <!-- INICIO DE SESIÓN -->
+        <!-- ========================================= -->
+
+        <section class="login-panel">
+
+
+            <div class="login-card">
+
+
+                <div class="login-header">
+
+
+                    <span class="small-label">
+                        PLATAFORMA DE BECAS
+                    </span>
+
+
+                    <h2>
+                        Iniciar sesión
+                    </h2>
+
+
+                    <p>
+                        Ingresa tus credenciales para continuar.
                     </p>
-                    <div class="hero-buttons">
-                        <a href="#convocatorias" class="btn btn-primary btn-lg">Ver Convocatorias <i class="fa-solid fa-arrow-right"></i></a>
-                        <a href="#consultar" class="btn btn-secondary btn-lg">Consultar mi Beca</a>
-                    </div>
-                    <div class="hero-stats">
-                        <div class="stat-item">
-                            <span class="stat-number">+15,000</span>
-                            <span class="stat-label">Becas Asignadas</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">100%</span>
-                            <span class="stat-label">Proceso Transparente</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-number">22</span>
-                            <span class="stat-label">Departamentos</span>
-                        </div>
-                    </div>
+
+
                 </div>
-                <div class="hero-card">
-                    <div class="glass-card">
-                        <div class="glass-header">
-                            <i class="fa-solid fa-shield-halved"></i>
-                            <h3>Estado de Postulación Rápida</h3>
-                        </div>
-                        <form id="quickCheckForm" class="quick-form">
-                            <div class="form-group">
-                                <label for="cuiInput">CUI / DPI del Estudiante</label>
-                                <input type="text" id="cuiInput" placeholder="Ej. 2540123450101" required maxlength="13" minlength="13" pattern="[0-9]{13}">
-                            </div>
-                            <button type="submit" class="btn btn-primary btn-block">Buscar Expediente</button>
-                        </form>
-                        <div id="quickResult" class="quick-result hidden"></div>
+
+
+                <!-- ================================= -->
+                <!-- FORMULARIO LOGIN -->
+                <!-- ================================= -->
+
+                <form id="loginForm">
+
+
+                    <div class="form-group">
+
+
+                        <label for="usuario">
+                            Usuario
+                        </label>
+
+
+                        <input
+                            type="text"
+                            id="usuario"
+                            placeholder="Ingresa tu usuario"
+                            autocomplete="username"
+                            required
+                        >
+
+
                     </div>
+
+
+                    <div class="form-group">
+
+
+                        <label for="password">
+                            Contraseña
+                        </label>
+
+
+                        <input
+                            type="password"
+                            id="password"
+                            placeholder="Ingresa tu contraseña"
+                            autocomplete="current-password"
+                            required
+                        >
+
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="btn-primary btn-full"
+                    >
+                        Iniciar sesión
+                    </button>
+
+
+                    <p
+                        id="loginMensaje"
+                        class="form-message"
+                    ></p>
+
+
+                </form>
+
+
+                <!-- ================================= -->
+                <!-- REGISTRO -->
+                <!-- ================================= -->
+
+                <div class="login-divider">
+
+                    <span>
+                        ¿No tienes una cuenta?
+                    </span>
+
                 </div>
+
+
+                <button
+                    type="button"
+                    class="btn-secondary btn-full"
+                    onclick="abrirRegistro()"
+                >
+                    Crear cuenta de aspirante
+                </button>
+
+
+                <!-- ================================= -->
+                <!-- USUARIOS DE PRUEBA -->
+                <!-- ================================= -->
+
+
             </div>
+
+
         </section>
 
-        <section id="convocatorias" class="section bg-light">
-            <div class="container">
-                <div class="section-header text-center">
-                    <span class="section-tag">Programas Disponibles</span>
-                    <h2 class="section-title">Convocatorias Vigentes</h2>
-                    <p class="section-subtitle">Selecciona el nivel educativo al que deseas postularte e inicia tu registro.</p>
-                </div>
 
-                <p class="prototype-notice">Las solicitudes y los PDF se guardan en la base de datos del proyecto.</p><div id="registrationResult" class="status-card hidden" role="status" tabindex="-1"></div><div class="filter-tabs">
-                    <button class="filter-btn active" data-filter="all">Todas</button>
-                    <button class="filter-btn" data-filter="medio">Nivel Medio</button>
-                    <button class="filter-btn" data-filter="universitario">Universitaria</button>
-                    <button class="filter-btn" data-filter="posgrado">Posgrados</button>
-                </div>
-
-                <div class="cards-grid">
-                    <article class="beca-card" data-category="universitario">
-                        <div class="card-badge">Universitaria</div>
-                        <div class="card-body">
-                            <div class="card-icon"><i class="fa-solid fa-laptop-code"></i></div>
-                            <h3 class="card-title">Beca Excelencia en STEAM</h3>
-                            <p class="card-text">Dirigida a estudiantes de ingeniería, ciencias exactas y tecnología con destacado promedio académico.</p>
-                            <ul class="card-features">
-                                <li><i class="fa-solid fa-check text-success"></i> Cobertura 100% de matrícula</li>
-                                <li><i class="fa-solid fa-check text-success"></i> Estipendio mensual de manutención</li>
-                                <li><i class="fa-solid fa-clock"></i> Cierre: 30 de Octubre</li>
-                            </ul>
-                        </div>
-                        <div class="card-footer">
-                            <button class="btn btn-outline btn-block apply-btn" data-beca="Beca Excelencia en STEAM">Postularme</button>
-                        </div>
-                    </article>
-
-                    <article class="beca-card" data-category="medio">
-                        <div class="card-badge">Nivel Medio</div>
-                        <div class="card-body">
-                            <div class="card-icon"><i class="fa-solid fa-book-open"></i></div>
-                            <h3 class="card-title">Beca Diversificado Regional</h3>
-                            <p class="card-text">Apoyo financiero para jóvenes de áreas rurales que cursan bachillerato o perito contador.</p>
-                            <ul class="card-features">
-                                <li><i class="fa-solid fa-check text-success"></i> Fondo para útiles y transporte</li>
-                                <li><i class="fa-solid fa-check text-success"></i> Tutoría académica incluida</li>
-                                <li><i class="fa-solid fa-clock"></i> Cierre: 15 de Noviembre</li>
-                            </ul>
-                        </div>
-                        <div class="card-footer">
-                            <button class="btn btn-outline btn-block apply-btn" data-beca="Beca Diversificado Regional">Postularme</button>
-                        </div>
-                    </article>
-
-                    <article class="beca-card" data-category="posgrado">
-                        <div class="card-badge">Posgrado</div>
-                        <div class="card-body">
-                            <div class="card-icon"><i class="fa-solid fa-user-graduate"></i></div>
-                            <h3 class="card-title">Beca Maestrías de Impacto Social</h3>
-                            <p class="card-text">Financiamiento de estudios de maestría en gestión pública, salud y educación integral.</p>
-                            <ul class="card-features">
-                                <li><i class="fa-solid fa-check text-success"></i> Cobertura académica global</li>
-                                <li><i class="fa-solid fa-check text-success"></i> Apoyo en investigación e tesis</li>
-                                <li><i class="fa-solid fa-clock"></i> Cierre: 05 de Diciembre</li>
-                            </ul>
-                        </div>
-                        <div class="card-footer">
-                            <button class="btn btn-outline btn-block apply-btn" data-beca="Beca Maestrías de Impacto Social">Postularme</button>
-                        </div>
-                    </article>
-                </div>
-            </div>
-        </section>
-
-        <section id="consultar" class="section">
-            <div class="container">
-                <div class="consult-box">
-                    <div class="consult-info">
-                        <h2>Consulta el Historial de tu Solicitud</h2>
-                        <p>Ingresa tu número de expediente o CUI para verificar en tiempo real la etapa en la que se encuentra tu proceso de selección.</p>
-                    </div>
-                    <div class="consult-search">
-                        <div class="input-group">
-                            <input type="text" id="searchExpediente" placeholder="Ingresa tu No. de Expediente" class="form-control">
-                            <button id="btnSearchExp" class="btn btn-primary"><i class="fa-solid fa-search"></i> Consultar</button>
-                        </div>
-                        <div id="fullResultCard" class="status-card hidden"></div>
-                    </div>
-                </div>
-            </div>
-        </section>
     </main>
 
-    <div class="modal" id="applyModal">
-        <div class="modal-content">
-            <button class="modal-close" id="closeModal">&times;</button>
-            <div class="modal-header">
-                <h3 id="modalBecaTitle">Postulación a Beca</h3>
-                <p>Completa tus datos personales para aperturar tu expediente.</p>
-            </div>
-            <form id="applyForm" class="modal-body">
-                <div class="form-group">
-                    <label for="studentName">Nombre Completo</label>
-                    <input type="text" id="studentName" required placeholder="Ej. Ana María López">
+
+
+    <!-- ============================================= -->
+    <!-- MODAL PARA CREAR CUENTA -->
+    <!-- ============================================= -->
+
+    <div
+        id="modalRegistro"
+        class="modal"
+    >
+
+
+        <div class="modal-card">
+
+
+            <!-- CERRAR MODAL -->
+
+            <button
+                type="button"
+                class="modal-close"
+                onclick="cerrarRegistro()"
+            >
+                ×
+            </button>
+
+
+            <h2>
+                Crear cuenta
+            </h2>
+
+
+            <p>
+                Registro de nuevo aspirante.
+            </p>
+
+
+            <!-- ================================= -->
+            <!-- FORMULARIO DE REGISTRO -->
+            <!-- ================================= -->
+
+            <form id="registroForm">
+
+
+                <div class="form-grid">
+
+
+                    <!-- NOMBRE -->
+
+                    <div class="form-group">
+
+
+                        <label for="registroNombre">
+                            Nombre completo
+                        </label>
+
+
+                        <input
+                            id="registroNombre"
+                            type="text"
+                            placeholder="Ingresa tu nombre completo"
+                            autocomplete="name"
+                            required
+                        >
+
+
+                    </div>
+
+
+                    <!-- DPI -->
+
+                    <div class="form-group">
+
+
+                        <label for="registroDpi">
+                            DPI
+                        </label>
+
+
+                        <input
+                            id="registroDpi" pattern="[0-9]{13}"
+                            type="text"
+                            maxlength="13"
+                            minlength="13"
+                            inputmode="numeric"
+                            placeholder="13 dígitos"
+                            required
+                        >
+
+
+                    </div>
+
+
+                    <!-- CORREO -->
+
+                    <div class="form-group">
+
+
+                        <label for="registroCorreo">
+                            Correo electrónico
+                        </label>
+
+
+                        <input
+                            id="registroCorreo"
+                            type="email"
+                            placeholder="correo@ejemplo.com"
+                            autocomplete="email"
+                            required
+                        >
+
+
+                    </div>
+
+
+                    <!-- USUARIO -->
+
+                    <div class="form-group">
+
+
+                        <label for="registroUsuario">
+                            Usuario
+                        </label>
+
+
+                        <input
+                            id="registroUsuario"
+                            type="text"
+                            placeholder="Crea un usuario"
+                            autocomplete="username"
+                            required
+                        >
+
+
+                    </div>
+
+
+                    <!-- CONTRASEÑA -->
+
+                    <div class="form-group full">
+
+
+                        <label for="registroPassword">
+                            Contraseña
+                        </label>
+
+
+                        <input
+                            id="registroPassword" minlength="8"
+                            type="password"
+                            placeholder="Crea una contraseña"
+                            autocomplete="new-password"
+                            required
+                        >
+
+
+                    </div>
+
+
                 </div>
-                <div class="form-group">
-                    <label for="studentEmail">Correo Electrónico</label>
-                    <input type="email" id="studentEmail" required placeholder="ejemplo@correo.com">
-                </div>
-                <div class="form-group">
-                    <label for="studentCui">CUI (DPI)</label>
-                    <input type="text" id="studentCui" required placeholder="13 dígitos" maxlength="13" minlength="13" pattern="[0-9]{13}">
-                </div>
-                <div class="form-group">
-                    <label for="studentFile">Cargar Documentación (PDF)</label>
-                    <input type="file" id="studentFile" accept=".pdf" required>
-                </div>
-                <button type="submit" class="btn btn-primary btn-block">Enviar Solicitud</button>
+
+
+                <!-- BOTÓN REGISTRAR -->
+
+                <button
+                    type="submit"
+                    class="btn-primary btn-full"
+                >
+                    Registrar aspirante
+                </button>
+
+
+                <!-- MENSAJE -->
+
+                <p
+                    id="registroMensaje"
+                    class="form-message"
+                ></p>
+
+
             </form>
+
+
         </div>
+
+
     </div>
 
-    <footer id="contacto" class="footer">
-        <div class="container footer-container">
-            <div class="footer-col">
-                <div class="brand footer-brand">
-                    <i class="fa-solid fa-graduation-cap brand-icon"></i>
-                    <span class="brand-title">BecasNacionales</span>
-                </div>
-                <p class="footer-desc">Plataforma oficial del Ministerio de Educación para la gestión transparente de becas escolares y universitarias.</p>
-            </div>
-            <div class="footer-col">
-                <h4>Enlaces Rápidos</h4>
-                <ul>
-                    <li><a href="#inicio">Inicio</a></li>
-                    <li><a href="#convocatorias">Convocatorias</a></li>
-                    <li><a href="#consultar">Consultar Estado</a></li>
-                </ul>
-            </div>
-            <div class="footer-col">
-                <h4>Atención Ciudadana</h4>
-                <p><i class="fa-solid fa-phone"></i> PBX: (502) 7979-7979</p>
-                <p><i class="fa-solid fa-envelope"></i> becas@umg.edu.gt</p>
-                <p><i class="fa-solid fa-location-dot"></i> Ciudad de Guatemala, Guatemala</p>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <div class="container text-center">
-                <p>&copy; 2026 Ministerio de UMG - Gobierno de La UMG. Todos los derechos reservados.</p>
-            </div>
-        </div>
-    </footer>
 
-    <script type="module" src="script.js"></script>
+
+    <!-- ============================================= -->
+    <!-- ARCHIVOS JAVASCRIPT -->
+    <!-- IMPORTANTE: MANTENER ESTE ORDEN -->
+    <!-- ============================================= -->
+
+    <script src="./js/data/datos.js"></script>
+
+    <script src="./js/app.js"></script>
+
+
 </body>
-</html>
 
+</html>

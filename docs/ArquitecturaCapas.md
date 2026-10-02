@@ -1,44 +1,36 @@
-# Arquitectura de capas: aplicación de becas con MySQL
+# Arquitectura de la aplicación recuperada
 
-## Distribución
+La base visual y las pantallas por fases se recuperaron de la rama `EstrucuturaPorCapas`, commit `fb61c2d`. Se conservan los paneles de aspirante, administrador y superadministrador, sus menús, revisión de formulario, entrevistas, decisión final, cupos y estadísticas.
+
+## Capas
 
 | Capa | Archivos | Responsabilidad |
 |---|---|---|
-| Presentación | `Frontend/index.html`, `styles.css`, `js/interfaz.js`, `js/solicitudApi.js` | Formularios, diseño, eventos y consumo de la API |
-| Negocio | `Negocio/solicitudServicio.js` | Validaciones, registro y consultas de solicitudes |
-| Acceso a datos | `Datos/solicitudRepositorioMySQL.js` | Consultas parametrizadas y transacciones MySQL |
+| Presentación | `Frontend/index.html`, `dashboard.html`, `css/style.css`, `js/app.js`, `js/roles/`, `js/archivos.js` | Formularios, navegación, paneles y mensajes |
+| Adaptador HTTP del cliente | `Frontend/js/data/datos.js` | Obtiene datos del backend y traduce las acciones de las pantallas originales a solicitudes HTTP |
+| Negocio | `Negocio/autenticacionServicio.js`, `plataformaServicio.js` | Registro, contraseñas, permisos, validaciones, transiciones por fases y cupos |
+| Datos | `Datos/plataformaRepositorioMySQL.js`, `estadoInicial.json` | Consultas parametrizadas y transacciones en MySQL |
+| Entrada del servidor | `Backend/servidor.js`, `plataformaApi.js`, `aplicacion.js` | HTTP, cookies, archivos, límites de peticiones y composición de capas |
 
-`Backend/servidor.js` compone las dependencias. `Backend/aplicacion.js` recibe peticiones HTTP y delega en negocio. `Backend/conexion.js` configura el pool. Los archivos de negocio y MySQL se ejecutan en Node.js; el navegador solo recibe los archivos públicos de `Frontend` y las respuestas de la API.
+El navegador ya no guarda cuentas, contraseñas ni solicitudes en `localStorage`. Solo mantiene una copia temporal de los datos autorizados para dibujar la pantalla. El servidor consulta el rol real en MySQL antes de cada acción; modificar la interfaz no otorga permisos.
 
-## Recorrido
+## Almacenamiento
 
-`Formulario → solicitudApi → API del backend → SolicitudServicio → SolicitudRepositorioMySQL → Aiven MySQL`
+Las cuatro tablas anteriores (`estudiantes`, `becas`, `solicitudes`, `documentos`) se conservan. Sus expedientes y PDF aparecen en “Documentos y registros anteriores”; el aspirante ve los que coinciden con su DPI y el administrador puede consultarlos todos. Las solicitudes anteriores conservan su estado original: no se inventan formularios académicos ni fases que nunca se completaron.
 
-El registro guarda estudiante, solicitud y PDF en una transacción. La respuesta de éxito solo se devuelve después del commit. La consulta por CUI devuelve un listado; la consulta por expediente devuelve una solicitud o null. La presentación muestra un mensaje si no hay registros.
+Las cuentas nuevas usan `usuarios_app`; las sesiones usan `sesiones_app`; los PDF nuevos usan `documentos_plataforma`.
 
-## Reglas iniciales
+Para conservar el modelo de datos de los paneles originales, los formularios, cuatro convocatorias, fases, horarios, descargas y actividad se guardan en el campo JSON de `estado_plataforma`. No son tablas normalizadas por entidad. El repositorio bloquea esa fila dentro de una transacción y verifica su versión para evitar reservas dobles y sobreasignación de cupos. Es una decisión para esta integración del proyecto académico; para mayor escala se puede migrar cada entidad a tablas propias.
 
-- CUI de 13 dígitos: es una validación de formato, no de identidad.
-- Nombre y correo obligatorios y dentro de los límites de las columnas.
-- Beca perteneciente al catálogo activo de MySQL.
-- PDF de hasta 5 MB con extensión y cabecera PDF. No se analiza su contenido.
-- Una solicitud por estudiante y beca, garantizada por el índice único.
-- Expediente con UUID y estado inicial `Recibida`.
+## Seguridad y alcance
 
-Estas reglas deben ajustarse a los requisitos que acuerde el equipo. No se implementaron fechas límite ni criterios de elegibilidad no definidos.
+- Contraseñas derivadas con scrypt y sal aleatoria; nunca se devuelven al navegador.
+- Cookies de sesión HttpOnly y SameSite=Strict, caducidad de ocho horas y tokens aleatorios cuyo hash se guarda en MySQL.
+- El cambio de contraseña invalida las sesiones. Desactivar una cuenta impide nuevas acciones.
+- El registro público siempre crea aspirantes. La primera cuenta de superadministrador se crea en la terminal; otras cuentas se administran desde su panel.
+- PDF con cabecera `%PDF-`, extensión `.pdf` y máximo 5 MB. El formulario se guarda primero; si el PDF falla se informa expresamente y se puede reintentar mientras no haya revisión.
+- La aplicación se sirve en `127.0.0.1`. Para publicarla hace falta HTTPS y añadir Secure a la cookie, además de adaptar el despliegue.
+- El DPI valida formato y unicidad, no verifica la identidad de una persona. El correo no tiene verificación ni recuperación de contraseña por correo.
+- Los datos de demostración del navegador no se importan automáticamente. Tampoco se habilitan las cuentas originales con contraseña `123`.
 
-## Base de datos
-
-`estudiantes` y `becas` se relacionan mediante `solicitudes`. Cada solicitud tiene un documento PDF en `documentos`. El esquema está en `Backend/esquema.sql`. La versión completa para crear también `becas_app` desde DBeaver está en `Backend/crearBaseDBeaver.sql`.
-
-## Ejecución y trabajo en equipo
-
-Sigue `docs/ConexionAiven.md` para configurar `.env`, instalar mysql2, crear tablas y ejecutar `npm start` desde `Backend`. La aplicación abre en `http://localhost:3000`. El backend está limitado a conexiones desde la computadora local.
-
-El equipo de presentación trabaja en `Frontend`, el de reglas en `Negocio` y el de persistencia en `Datos` y el esquema SQL. Deben mantener los contratos del servicio: `registrar`, `consultarPorCui` y `consultarPorExpediente`.
-
-La versión anterior guardaba en IndexedDB. `Datos/solicitudRepositorio.js` se conserva como referencia, pero ya no está conectado al frontend. Los datos locales antiguos no se migran automáticamente.
-
-## Pendiente
-
-La conexión real con Aiven y las operaciones SQL deben comprobarse después de completar las credenciales. La autenticación y autorización por usuario, revisión por comité y aprobación requieren desarrollo adicional. Esta versión corresponde a desarrollo local.
+La librería jsPDF del dashboard original se carga desde su CDN para descargar formularios y reportes; esos botones requieren acceso a Internet.
