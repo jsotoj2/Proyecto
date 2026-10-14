@@ -1,0 +1,53 @@
+{
+  "becas": [
+    {
+      "id": 1,
+      "nombre": "Beca de Ingeniería",
+      "descripcion": "Programa dirigido a estudiantes interesados en carreras de ingeniería.",
+      "requisitos": [
+        "Ser graduado de nivel diversificado.",
+        "Promedio mínimo de 80 puntos.",
+        "Disponibilidad para entrevista.",
+        "Presentar información académica."
+      ],
+      "cupos": 15
+    },
+    {
+      "id": 2,
+      "nombre": "Beca de Arquitectura",
+      "descripcion": "Apoyo académico para estudiantes interesados en Arquitectura y Diseño.",
+      "requisitos": [
+        "Promedio mínimo de 80 puntos.",
+        "Ser estudiante guatemalteco.",
+        "Cumplir con la documentación solicitada."
+      ],
+      "cupos": 10
+    },
+    {
+      "id": 3,
+      "nombre": "Beca de Ciencias Sociales",
+      "descripcion": "Programa enfocado en estudiantes de carreras sociales y humanísticas.",
+      "requisitos": [
+        "Promedio mínimo de 75 puntos.",
+        "Completar formulario de solicitud.",
+        "Realizar entrevista."
+      ],
+      "cupos": 12
+    },
+    {
+      "id": 4,
+      "nombre": "Beca de Tecnología",
+      "descripcion": "Programa dirigido a futuros profesionales del área tecnológica.",
+      "requisitos": [
+        "Interés en tecnología.",
+        "Promedio mínimo de 80 puntos.",
+        "Participar en entrevista."
+      ],
+      "cupos": 20
+    }
+  ],
+  "descargas": [],
+  "solicitudes": [],
+  "horarios": [],
+  "actividad": []
+}
