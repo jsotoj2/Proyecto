@@ -1,0 +1,19 @@
+{
+  "name": "becas-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Plataforma de becas: interfaz, API y persistencia MySQL",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "start": "node --env-file=.env servidor/iniciar.js",
+    "probar-db": "node --env-file=.env scripts/probarConexion.js",
+    "migrar": "node --env-file=.env scripts/migrar.js",
+    "crear-admin": "node --env-file=.env scripts/crearAdministrador.js",
+    "generar-sql-admin": "node scripts/crearAdministrador.js --exportar-sql",
+    "test": "node --test pruebas/*.test.js",
+    "test:integracion": "node --env-file=.env.pruebas --test pruebas/integracion.mysql.js",
+    "verificar": "node scripts/verificarSintaxis.js"
+  },
+  "dependencies": { "mysql2": "^3.24.5" }
+}
