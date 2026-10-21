@@ -13,7 +13,9 @@ export const operaciones = Object.freeze({
     'POST /resultados': 'fase4',
     'PATCH /cupos': 'cupos',
     'POST /usuarios': 'crear-usuario',
-    'PATCH /usuarios/estado': 'activar-usuario'
+    'PATCH /usuarios/estado': 'activar-usuario',
+    'POST /becas/comite': 'asignar-comite',
+'POST /becas/:id/comite': 'asignar-comite',
 });
 
 export function crearRutas({ autenticacion, plataforma, repositorio, origen, cookieSegura = false }) {
