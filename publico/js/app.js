@@ -8,6 +8,11 @@ function mensaje(id, texto, error = false) {
     if (elemento) { elemento.textContent = texto; elemento.className = 'form-message ' + (error ? 'error' : 'success'); }
 }
 
+// Las marcas de tiempo llegan en UTC; se muestran en la hora de Guatemala.
+function fechaHora(valor) {
+    return new Date(valor).toLocaleString('es-GT', { timeZone: 'America/Guatemala', dateStyle: 'medium', timeStyle: 'short' });
+}
+
 function nombreRol(rol) {
     return { aspirante: 'Aspirante', admin: 'Administrador', superadmin: 'Superadministrador' }[rol] ?? rol;
 }

@@ -29,6 +29,10 @@ const AspiranteUI = {
                 this.renderEstado();
                 break;
 
+            case "notificaciones":
+                this.renderNotificaciones();
+                break;
+
             default:
                 this.renderInicio();
 
@@ -37,6 +41,10 @@ const AspiranteUI = {
     },
 
     renderMenu() {
+
+        const sinLeer =
+            (BecasData.obtener().notificaciones ?? [])
+                .filter(item => !item.leida).length;
 
         document.getElementById(
             "sidebar"
@@ -88,6 +96,11 @@ const AspiranteUI = {
                     ${Iconos.svg("estado")} Estado de beca
                 </button>
 
+                <button onclick="navegar('notificaciones')">
+                    ${Iconos.svg("campana")} Notificaciones
+                    ${sinLeer ? `<span class="badge-count" aria-label="${sinLeer} sin leer">${sinLeer}</span>` : ""}
+                </button>
+
                 <button onclick="navegar('cuenta')">
                     ${Iconos.svg("usuario")} Mi cuenta
                 </button>
@@ -116,7 +129,7 @@ const AspiranteUI = {
             ['Solicitud', 'Explora los programas y completa tu formulario.', enviada ? 'Formulario enviado' : 'Comienza aquí', 'fase1'],
             ['Revisión', 'Consulta la revisión de tus documentos.', revision || 'Pendiente de solicitud', 'fase2'],
             ['Entrevista', 'Programa y consulta los detalles de tu entrevista.', entrevista || 'Pendiente de revisión', 'fase3'],
-            ['Resultado', 'Consulta la decisión final de tu proceso.', resultado || 'Pendiente de evaluación', 'fase4']
+            ['Resultado', 'Consulta la decisión final de tu proceso.', resultado ? this.textoResultado(resultado) : 'Pendiente de evaluación', 'fase4']
         ];
         const destino = finalizada ? 'fase4' : !enviada ? 'fase1' : revision !== 'aceptada' ? 'fase2' : entrevista !== 'realizada' ? 'fase3' : 'fase4';
         const accion = {fase1: 'Explorar becas', fase2: 'Consultar revisión', fase3: 'Ver entrevista', fase4: 'Consultar resultado'}[destino];
@@ -359,6 +372,26 @@ const AspiranteUI = {
 
                 </div>
 
+                <div class="form-group">
+
+                    <label>
+                        Monto solicitado (Q)
+                    </label>
+
+                    <input
+                        id="formMonto"
+                        type="number"
+                        min="1"
+                        step="0.01"
+                        aria-describedby="formMontoAyuda"
+                    >
+
+                    <small id="formMontoAyuda">
+                        Los montos mayores de Q10,000 requieren una segunda aprobación.
+                    </small>
+
+                </div>
+
                 <div class="form-group full">
 
                     <label>
@@ -406,7 +439,7 @@ const AspiranteUI = {
 
     async enviarFormulario() {
         return Operaciones.ejecutar(async () => {
-        const campos = { edad: 'formEdad', telefono: 'formTelefono', direccion: 'formDireccion', estudios: 'formEstudios', promedio: 'formPromedio', motivo: 'formMotivo' };
+        const campos = { edad: 'formEdad', telefono: 'formTelefono', direccion: 'formDireccion', estudios: 'formEstudios', promedio: 'formPromedio', monto: 'formMonto', motivo: 'formMotivo' };
         const formulario = Object.fromEntries(Object.entries(campos).map(([campo, id]) => [campo, document.getElementById(id).value.trim()]));
         if (Object.values(formulario).some(valor => !valor)) throw new Error('Completa todos los campos del formulario.');
         const archivo = document.getElementById('formPdf')?.files[0];
@@ -747,6 +780,21 @@ const AspiranteUI = {
                 </span>
 
                 ${
+                    estado === "pendiente_aprobacion"
+                    ?
+                    `
+                        <h1>
+                            Solicitud en segunda aprobación
+                        </h1>
+
+                        <p>
+                            Tu solicitud fue aprobada y, por
+                            superar Q10,000, otro administrador
+                            debe autorizarla. Te avisaremos en
+                            tus notificaciones.
+                        </p>
+                    `
+                    :
                     estado === "pendiente"
                     ?
                     `
@@ -808,7 +856,8 @@ const AspiranteUI = {
                 }
 
                 ${
-                    solicitud.fase4.comentario
+                    solicitud.fase4.comentario &&
+                    estado !== "pendiente_aprobacion"
                     ?
                     `
                         <div class="comment-box">
@@ -926,7 +975,7 @@ const AspiranteUI = {
                 ${this.paso(
                     "4",
                     "Resultado",
-                    fase4,
+                    this.textoResultado(fase4),
                     fase4 ===
                         "aceptada"
                 )}
@@ -934,6 +983,80 @@ const AspiranteUI = {
             </div>
 
         `;
+
+    },
+
+    textoResultado(estado) {
+
+        return estado === "pendiente_aprobacion"
+            ? "En segunda aprobación"
+            : estado;
+
+    },
+
+    renderNotificaciones() {
+
+        const notificaciones =
+            BecasData.obtener().notificaciones ?? [];
+
+        document.getElementById(
+            "pageTitle"
+        ).textContent =
+            "Notificaciones";
+
+        document.getElementById(
+            "mainContent"
+        ).innerHTML = `
+
+            <div class="page-header">
+
+                <div>
+
+                    <span class="eyebrow">
+                        AVISOS
+                    </span>
+
+                    <h1>
+                        Notificaciones
+                    </h1>
+
+                    <p>
+                        Cada cambio en tu solicitud aparece aquí.
+                    </p>
+
+                </div>
+
+            </div>
+
+            ${
+                notificaciones.length
+                ?
+                `
+                    <div class="notification-list">
+                        ${notificaciones.map(item => `
+                            <article class="notification-item ${item.leida ? "" : "unread"}">
+                                <p>${item.mensaje}</p>
+                                <time datetime="${item.fecha}">${fechaHora(item.fecha)}</time>
+                            </article>
+                        `).join("")}
+                    </div>
+                `
+                :
+                `
+                    <section class="empty-state">
+                        <h2>Sin notificaciones</h2>
+                        <p>Te avisaremos cuando tu solicitud cambie de estado.</p>
+                    </section>
+                `
+            }
+        `;
+
+        // Se marcan como leídas después de mostrarlas y se retira el contador del menú.
+        if (notificaciones.some(item => !item.leida)) {
+            BecasData.leerNotificaciones()
+                .then(() => document.querySelector(".sidebar-menu .badge-count")?.remove())
+                .catch(error => mostrarAviso(error.message));
+        }
 
     },
 

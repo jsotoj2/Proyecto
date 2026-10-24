@@ -3,11 +3,13 @@ import { errorUsuario } from '../servicios/autenticacionServicio.js';
 
 const interpretar = valor => typeof valor === 'string' ? JSON.parse(valor) : valor;
 const fecha = valor => valor instanceof Date ? valor.toISOString().slice(0, 10) : String(valor).slice(0, 10);
+// Las marcas de tiempo se guardan en UTC y se devuelven en ISO para que el navegador las convierta.
+const instante = valor => (valor instanceof Date ? valor : new Date(String(valor).replace(' ', 'T') + 'Z')).toISOString();
 
 export class PlataformaRepositorio extends UsuariosRepositorio {
     async comprobarEsquema() {
-        const [filas] = await this.conexion.execute("SELECT nombre FROM migraciones WHERE nombre IN ('datos-relacionales-v1','004-integridad.sql:3')");
-        if (filas.length !== 2) throw new Error('Completa npm run migrar antes de iniciar la aplicación.');
+        const [filas] = await this.conexion.execute("SELECT nombre FROM migraciones WHERE nombre IN ('datos-relacionales-v1','004-integridad.sql:3','005-aprobaciones-auditoria.sql:4')");
+        if (filas.length !== 3) throw new Error('Completa npm run migrar antes de iniciar la aplicación.');
     }
 
     async leerEstado() {
@@ -41,7 +43,7 @@ export class PlataformaRepositorio extends UsuariosRepositorio {
                     id: Number(s.id), usuario: s.usuario, dpi: s.dpi, becaId: Number(s.beca_id),
                     fechaFormulario: fecha(s.fecha_formulario), formularioEnviado: true, formulario: interpretar(s.formulario),
                     fase2: { estado: s.revision, comentario: s.comentario_revision },
-                    fase4: { estado: s.resultado, comentario: s.comentario_resultado },
+                    fase4: { estado: s.resultado, comentario: s.comentario_resultado, aprobadoPor: s.aprobado_por ?? '' },
                     entrevista: { estado: s.entrevista, fecha: horario ? fecha(horario.fecha) : '', hora: horario ? String(horario.hora).slice(0, 5) : '', modalidad: horario?.modalidad ?? '' }
                 };
             })
@@ -60,9 +62,9 @@ export class PlataformaRepositorio extends UsuariosRepositorio {
             );
         }
         for (const s of datos.solicitudes.filter(s => cambio('solicitudes', s))) {
-            const valores = [s.becaId,JSON.stringify(s.formulario),s.fase2.estado,s.fase2.comentario,s.entrevista.estado,s.fase4.estado,s.fase4.comentario];
+            const valores = [s.becaId,JSON.stringify(s.formulario),s.fase2.estado,s.fase2.comentario,s.entrevista.estado,s.fase4.estado,s.fase4.comentario,s.fase4.aprobadoPor || null];
             await this.conexion.execute(
-                'INSERT INTO postulaciones (id,usuario,dpi,fecha_formulario,beca_id,formulario,revision,comentario_revision,entrevista,resultado,comentario_resultado) VALUES (?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE beca_id=?,formulario=?,revision=?,comentario_revision=?,entrevista=?,resultado=?,comentario_resultado=?',
+                'INSERT INTO postulaciones (id,usuario,dpi,fecha_formulario,beca_id,formulario,revision,comentario_revision,entrevista,resultado,comentario_resultado,aprobado_por) VALUES (?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE beca_id=?,formulario=?,revision=?,comentario_revision=?,entrevista=?,resultado=?,comentario_resultado=?,aprobado_por=?',
                 [s.id,s.usuario,s.dpi,s.fechaFormulario,...valores,...valores]
             );
         }
@@ -79,6 +81,39 @@ export class PlataformaRepositorio extends UsuariosRepositorio {
         const actividades = this.estadoOriginal ? actividadesNuevas : [...datos.actividad].reverse();
         for (const a of actividades) await this.conexion.execute('INSERT INTO actividad_plataforma (texto,fecha) VALUES (?,?)', [a.texto,a.fecha]);
         await this.conexion.execute('UPDATE control_plataforma SET version=? WHERE id=1', [version]);
+    }
+
+    async registrarAuditoria(eventos) {
+        for (const e of eventos) {
+            await this.conexion.execute(
+                'INSERT INTO auditoria_solicitudes (solicitud_id,usuario_solicitud,actor_id,actor_usuario,actor_rol,operacion,estado_anterior,estado_nuevo,resultado,detalle,fecha) VALUES (?,?,?,?,?,?,?,?,?,?,?)',
+                [e.solicitudId,e.usuarioSolicitud,e.actorId,e.actorUsuario,e.actorRol,e.operacion,e.estadoAnterior,e.estadoNuevo,e.resultado,e.detalle,new Date(e.fecha)]
+            );
+        }
+    }
+
+    async auditoria(limite = 500) {
+        const [filas] = await this.conexion.execute(`SELECT * FROM auditoria_solicitudes ORDER BY id DESC LIMIT ${Number(limite)}`);
+        return filas.map(f => ({
+            id: Number(f.id), solicitudId: f.solicitud_id === null ? null : Number(f.solicitud_id), usuarioSolicitud: f.usuario_solicitud ?? '',
+            actorId: Number(f.actor_id), actorUsuario: f.actor_usuario, actorRol: f.actor_rol, operacion: f.operacion,
+            estadoAnterior: f.estado_anterior ?? '', estadoNuevo: f.estado_nuevo ?? '', resultado: f.resultado, detalle: f.detalle, fecha: instante(f.fecha)
+        }));
+    }
+
+    async crearNotificaciones(notificaciones) {
+        for (const n of notificaciones) {
+            await this.conexion.execute('INSERT INTO notificaciones (usuario,solicitud_id,mensaje,fecha) VALUES (?,?,?,?)', [n.usuario,n.solicitudId,n.mensaje,new Date(n.fecha)]);
+        }
+    }
+
+    async notificaciones(usuario) {
+        const [filas] = await this.conexion.execute('SELECT id,solicitud_id,mensaje,leida,fecha FROM notificaciones WHERE usuario=? ORDER BY id DESC LIMIT 100', [usuario]);
+        return filas.map(f => ({ id: Number(f.id), solicitudId: f.solicitud_id === null ? null : Number(f.solicitud_id), mensaje: f.mensaje, leida: Boolean(f.leida), fecha: instante(f.fecha) }));
+    }
+
+    async marcarNotificacionesLeidas(usuario) {
+        await this.conexion.execute('UPDATE notificaciones SET leida=TRUE WHERE usuario=? AND leida=FALSE', [usuario]);
     }
 
     async previas(actor) {

@@ -8,7 +8,7 @@
         formulario: ['POST', 'solicitudes'], descarga: ['POST', 'descargas'],
         fase2: ['POST', 'revisiones'], horario: ['POST', 'horarios'],
         reservar: ['POST', 'reservas'], entrevista: ['POST', 'entrevistas/completar'],
-        fase4: ['POST', 'resultados'], cupos: ['PATCH', 'cupos'],
+        fase4: ['POST', 'resultados'], 'segunda-aprobacion': ['POST', 'aprobaciones'], cupos: ['PATCH', 'cupos'],
         'crear-usuario': ['POST', 'usuarios'], 'activar-usuario': ['PATCH', 'usuarios/estado']
     };
     const escapar = valor => String(valor).replace(/[&<>"']/g, caracter => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[caracter]));
@@ -60,6 +60,10 @@
             }
         },
         version() { return datosCache?.version; },
+        async leerNotificaciones() {
+            datosCache = await api('notificaciones/leidas', {}, 'PATCH');
+            cargadoEn = Date.now();
+        },
         async subirPdf(id, archivo) {
             return peticion('pdf/' + id, { method: 'POST', headers: { 'Content-Type': 'application/pdf', 'X-File-Name': encodeURIComponent(archivo.name) }, body: archivo });
         }

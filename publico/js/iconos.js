@@ -16,7 +16,9 @@ window.Iconos = {
       menu:'<path d="M4 6h16M4 12h16M4 18h16"/>',
       flecha:'<path d="M4 12h16m-6-6 6 6-6 6"/>',
       salir:'<path d="M9 3H4v18h5M9 12h12m-5-5 5 5-5 5"/>',
-      cerrar:'<path d="m6 6 12 12M18 6 6 18"/>'
+      cerrar:'<path d="m6 6 12 12M18 6 6 18"/>',
+      campana:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10 21h4"/>',
+      auditoria:'<path d="M9 3h6v4H9zM5 5h4M15 5h4v16H5V5"/><path d="M9 12h6M9 16h4"/>'
     };
     return `<svg class="ui-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${trazos[nombre] || trazos.documento}</svg>`;
   }

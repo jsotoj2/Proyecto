@@ -13,7 +13,8 @@ export async function migrar(conexion) {
         if (Number(bloqueo[0].adquirido) !== 1) throw new Error('Otra migración está en ejecución.');
         bloqueada = true;
         await exclusiva.query('CREATE TABLE IF NOT EXISTS migraciones (nombre VARCHAR(150) PRIMARY KEY, checksum CHAR(64) NOT NULL, aplicada DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)) ENGINE=InnoDB');
-        for (const archivo of ['001-historico.sql', '002-usuarios.sql', '003-plataforma-relacional.sql']) {
+        // 005 va antes del traslado de datos porque guardarEstado ya escribe sus columnas.
+        for (const archivo of ['001-historico.sql', '002-usuarios.sql', '003-plataforma-relacional.sql', '005-aprobaciones-auditoria.sql']) {
             await aplicarArchivo(exclusiva, archivo);
         }
         const [migrada] = await exclusiva.execute("SELECT nombre FROM migraciones WHERE nombre='datos-relacionales-v1'");
@@ -52,8 +53,10 @@ async function aplicarArchivo(conexion, archivo) {
         }
         try { await conexion.query(sql); }
         catch (error) {
-            // Una caída entre DDL y su registro puede dejar el índice ya creado.
-            if (!(archivo === '004-integridad.sql' && ['ER_DUP_KEYNAME', 'ER_FK_DUP_NAME'].includes(error.code))) throw error;
+            // Una caída entre DDL y su registro puede dejar el índice o la columna ya creados.
+            const repetido = (archivo === '004-integridad.sql' && ['ER_DUP_KEYNAME', 'ER_FK_DUP_NAME'].includes(error.code))
+                || (archivo === '005-aprobaciones-auditoria.sql' && error.code === 'ER_DUP_FIELDNAME');
+            if (!repetido) throw error;
         }
         await conexion.execute('INSERT INTO migraciones (nombre,checksum) VALUES (?,?)', [nombre,checksum]);
     }

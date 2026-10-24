@@ -39,6 +39,11 @@ const AdminUI = {
                 this.renderEstado();
                 break;
 
+            case "auditoria":
+
+                this.renderAuditoria();
+                break;
+
             default:
 
                 this.renderInicio();
@@ -97,6 +102,10 @@ const AdminUI = {
 
                 <button onclick="navegar('estado')">
                     ${Iconos.svg("buscar")} Estado de beca
+                </button>
+
+                <button onclick="navegar('auditoria')">
+                    ${Iconos.svg("auditoria")} Bitácora
                 </button>
 
                 ${
@@ -1345,7 +1354,171 @@ const AdminUI = {
             </div>
 
             <div id="resultadoFase4"></div>
+
+            ${this.pendientesSegunda()}
         `;
+
+    },
+
+    // Solicitudes de más de Q10,000 aprobadas por un administrador y en espera de otro.
+    pendientesSegunda() {
+
+        const datos =
+            BecasData.obtener();
+
+        const pendientes =
+            datos.solicitudes.filter(
+                item =>
+                    item.fase4.estado ===
+                    "pendiente_aprobacion"
+            );
+
+        if (!pendientes.length) return "";
+
+        return `
+
+            <div class="panel">
+
+                <span class="eyebrow">
+                    MONTOS MAYORES DE Q10,000
+                </span>
+
+                <h2>
+                    Pendientes de segunda aprobación
+                </h2>
+
+                ${pendientes.map(solicitud => {
+
+                    const usuario =
+                        datos.usuarios.find(
+                            item =>
+                                item.usuario ===
+                                solicitud.usuario
+                        );
+
+                    const propia =
+                        solicitud.fase4.aprobadoPor ===
+                        usuarioActual.usuario;
+
+                    return `
+
+                        <div class="approval-item">
+
+                            <div class="details-grid">
+
+                                <div>
+                                    <span>Aspirante</span>
+                                    <strong>${usuario?.nombre ?? solicitud.usuario}</strong>
+                                </div>
+
+                                <div>
+                                    <span>Monto solicitado</span>
+                                    <strong>${this.monto(solicitud)}</strong>
+                                </div>
+
+                                <div>
+                                    <span>Primera aprobación</span>
+                                    <strong>${solicitud.fase4.aprobadoPor}</strong>
+                                </div>
+
+                            </div>
+
+                            ${
+                                propia
+                                ?
+                                `
+                                    <p class="form-message">
+                                        Tú realizaste la primera aprobación.
+                                        Otro administrador debe completar la segunda.
+                                    </p>
+                                `
+                                :
+                                `
+                                    <textarea
+                                        id="comentarioSegunda-${solicitud.id}"
+                                        rows="2"
+                                        placeholder="Comentario (obligatorio para no autorizar)"
+                                    ></textarea>
+
+                                    <div class="decision-buttons">
+
+                                        <button
+                                            class="btn-success"
+                                            onclick="AdminUI.segundaAprobacion('${solicitud.usuario}', ${solicitud.id}, 'aceptada')"
+                                        >
+                                            ${Iconos.svg("check")} Autorizar
+                                        </button>
+
+                                        <button
+                                            class="btn-danger"
+                                            onclick="AdminUI.segundaAprobacion('${solicitud.usuario}', ${solicitud.id}, 'rechazada')"
+                                        >
+                                            × No autorizar
+                                        </button>
+
+                                    </div>
+                                `
+                            }
+
+                        </div>
+                    `;
+
+                }).join("")}
+
+            </div>
+        `;
+
+    },
+
+    async segundaAprobacion(
+        usuario,
+        id,
+        estado
+    ) {
+        return Operaciones.ejecutar(async () => {
+
+        const comentario =
+            document.getElementById(
+                `comentarioSegunda-${id}`
+            ).value.trim();
+
+        if (estado === "rechazada" && !comentario) {
+            throw new Error("Debes agregar un comentario.");
+        }
+
+        await BecasData.ejecutar('segunda-aprobacion', {
+            usuario,
+            estado,
+            comentario: comentario || 'Has sido seleccionado para la beca solicitada.'
+        });
+
+        mostrarAviso(
+            estado === "aceptada"
+                ? "Beca autorizada con segunda aprobación."
+                : "La solicitud no fue autorizada."
+        );
+
+        this.renderFase4();
+
+        });
+    },
+
+    monto(solicitud) {
+
+        const valor =
+            Number(solicitud.formulario?.monto);
+
+        return Number.isFinite(valor)
+            ? "Q" + valor.toLocaleString("es-GT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+            : "No indicado";
+
+    },
+
+    textoResultado(estado) {
+
+        return estado === "pendiente_aprobacion"
+            ? "en segunda aprobación"
+            : estado;
 
     },
 
@@ -1400,8 +1573,9 @@ const AdminUI = {
                 item =>
                     item.becaId ===
                         beca.id &&
-                    item.fase4.estado ===
-                        "aceptada"
+                    ["aceptada", "pendiente_aprobacion"].includes(
+                        item.fase4.estado
+                    )
             ).length;
 
         const disponibles =
@@ -1450,9 +1624,37 @@ const AdminUI = {
                         </strong>
                     </div>
 
+                    <div>
+                        <span>Monto solicitado</span>
+                        <strong>
+                            ${this.monto(solicitud)}
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>Resultado</span>
+                        <strong>
+                            ${this.textoResultado(solicitud.fase4.estado)}
+                        </strong>
+                    </div>
+
                 </div>
 
-                <div class="decision-buttons">
+                ${
+                    solicitud.fase4.estado ===
+                    "pendiente_aprobacion"
+                    ?
+                    `
+                        <p class="form-message">
+                            Esta solicitud espera la segunda aprobación.
+                            Gestiónala en la lista de pendientes.
+                        </p>
+                    `
+                    :
+                    ""
+                }
+
+                <div class="decision-buttons ${solicitud.fase4.estado === "pendiente_aprobacion" ? "hidden" : ""}">
 
                     <button
                         class="btn-success"
@@ -1601,8 +1803,17 @@ const AdminUI = {
 
         await BecasData.ejecutar('fase4', { usuario, estado, comentario: estado === 'aceptada' ? 'Has sido seleccionado para la beca solicitada.' : document.getElementById('comentarioFinal').value.trim() });
 
+        const guardada =
+            BecasData.obtener().solicitudes.find(
+                item =>
+                    item.usuario ===
+                    usuario
+            );
+
         alert(
-            "Decisión final guardada correctamente."
+            guardada?.fase4.estado === "pendiente_aprobacion"
+                ? "Aprobación registrada. Por superar Q10,000, otro administrador debe dar la segunda aprobación."
+                : "Decisión final guardada correctamente."
         );
 
         this.renderFase4();
@@ -1727,13 +1938,113 @@ const AdminUI = {
 
                     ${this.estadoPaso(
                         "4",
-                        `Resultado: ${solicitud.fase4.estado}`,
+                        `Resultado: ${this.textoResultado(solicitud.fase4.estado)}`,
                         solicitud.fase4.estado === "aceptada"
                     )}
 
                 </div>
 
             </div>
+        `;
+
+    },
+
+    renderAuditoria() {
+
+        const registros =
+            BecasData.obtener().auditoria ?? [];
+
+        const operaciones = {
+            formulario: "Formulario",
+            fase2: "Revisión",
+            reservar: "Reserva de entrevista",
+            entrevista: "Entrevista realizada",
+            fase4: "Decisión final",
+            "segunda-aprobacion": "Segunda aprobación"
+        };
+
+        const estado = valor =>
+            valor
+                ? valor.replace("resultado-pendiente_aprobacion", "segunda aprobación").replace(/-/g, " ")
+                : "—";
+
+        document.getElementById(
+            "pageTitle"
+        ).textContent =
+            "Bitácora";
+
+        document.getElementById(
+            "mainContent"
+        ).innerHTML = `
+
+            <div class="page-header">
+
+                <div>
+
+                    <span class="eyebrow">
+                        AUDITORÍA
+                    </span>
+
+                    <h1>
+                        Bitácora de solicitudes
+                    </h1>
+
+                    <p>
+                        Quién realizó cada aprobación, rechazo o modificación,
+                        cuándo ocurrió y cuál fue el resultado. Se muestran los
+                        500 registros más recientes.
+                    </p>
+
+                </div>
+
+            </div>
+
+            ${
+                registros.length
+                ?
+                `
+                    <div class="table-wrapper">
+
+                        <table>
+
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Realizado por</th>
+                                    <th>Operación</th>
+                                    <th>Solicitud de</th>
+                                    <th>Cambio de estado</th>
+                                    <th>Resultado</th>
+                                    <th>Detalle</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                ${registros.map(item => `
+                                    <tr>
+                                        <td>${fechaHora(item.fecha)}</td>
+                                        <td>${item.actorUsuario} <small>(${nombreRol(item.actorRol)})</small></td>
+                                        <td>${operaciones[item.operacion] ?? item.operacion}</td>
+                                        <td>${item.usuarioSolicitud || "—"}</td>
+                                        <td>${item.resultado === "exito" ? `${estado(item.estadoAnterior)} → ${estado(item.estadoNuevo)}` : "—"}</td>
+                                        <td><span class="status-badge ${item.resultado === "exito" ? "green" : "red"}">${item.resultado === "exito" ? "Éxito" : "Rechazado"}</span></td>
+                                        <td>${item.detalle}</td>
+                                    </tr>
+                                `).join("")}
+                            </tbody>
+
+                        </table>
+
+                    </div>
+                `
+                :
+                `
+                    <section class="empty-state">
+                        <h2>Sin registros</h2>
+                        <p>Las operaciones sobre solicitudes aparecerán aquí.</p>
+                    </section>
+                `
+            }
         `;
 
     },

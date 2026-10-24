@@ -11,7 +11,8 @@ Base: `/api/plataforma`. Respuestas JSON salvo descarga de PDF. La autenticació
 | POST | `/logout` | Cierra la sesión actual |
 | GET | `/sesion` | Usuario autenticado, sin hash |
 | PATCH | `/cuenta` | `nombre`, `correo`, `password` opcional. Cambiar contraseña revoca todas sus sesiones |
-| GET | `/estado` | Colecciones del panel y `version`; aspirantes solo reciben sus datos personales |
+| GET | `/estado` | Colecciones del panel y `version`; aspirantes solo reciben sus datos personales y `notificaciones`; admin y superadmin reciben `auditoria` (500 registros más recientes) |
+| PATCH | `/notificaciones/leidas` | Aspirante. Marca sus notificaciones como leídas y devuelve el estado |
 
 ## Operaciones
 
@@ -20,13 +21,14 @@ Todas requieren sesión, un cuerpo JSON y `version` entera. La respuesta contien
 | Método | Ruta | Rol | Campos adicionales |
 | --- | --- | --- | --- |
 | POST | `/becas` | Superadmin | `nombre`, `descripcion`, `requisitos` como lista, `cupos` |
-| POST | `/solicitudes` | Aspirante | `becaId`, `formulario` |
+| POST | `/solicitudes` | Aspirante | `becaId`, `formulario` (incluye `monto` solicitado, de 1 a 10,000,000) |
 | POST | `/descargas` | Aspirante | `becaId` |
 | POST | `/revisiones` | Admin / superadmin | `usuario`, `estado`, `comentario` |
 | POST | `/horarios` | Admin / superadmin | `fecha`, `hora`, `modalidad` |
 | POST | `/reservas` | Aspirante | `horarioId` |
 | POST | `/entrevistas/completar` | Admin / superadmin | `usuario` |
-| POST | `/resultados` | Admin / superadmin | `usuario`, `estado`, `comentario` |
+| POST | `/resultados` | Admin / superadmin | `usuario`, `estado`, `comentario`. Si el monto supera Q10,000, `aceptada` deja la solicitud en `pendiente_aprobacion` |
+| POST | `/aprobaciones` | Admin / superadmin distinto del primero | `usuario`, `estado`, `comentario`. Autoriza o rechaza una solicitud en `pendiente_aprobacion` |
 | PATCH | `/cupos` | Superadmin | `becaId`, `cupos` |
 | POST | `/usuarios` | Superadmin | `usuario` como objeto de cuenta; rol `admin` o `aspirante` |
 | PATCH | `/usuarios/estado` | Superadmin | `usuario`, `activo` booleano |
@@ -68,3 +70,9 @@ Formato: `{ "error": "Mensaje en español", "identificador": "…" }` para error
 El cliente no reintenta automáticamente escrituras. Tras un timeout, consulta el estado antes de repetir. `POST /accion` se conserva temporalmente con cabecera `Deprecation: true`; el frontend nuevo usa las rutas explícitas. `POST /cuenta` se acepta por compatibilidad. El antiguo circuito público `/api/solicitudes` se retira; el histórico sigue accesible mediante las rutas autenticadas del panel.
 
 El límite de intentos de acceso es de 15 por minuto e IP en cada proceso. Un despliegue con varios procesos necesita un almacén compartido para ese límite. No se confía automáticamente en `X-Forwarded-For`.
+
+## Segunda aprobación, bitácora y notificaciones
+
+- Una solicitud con `formulario.monto` mayor de 10,000 (`MONTO_SEGUNDA_APROBACION`) necesita dos aprobaciones de administradores distintos. Mientras espera, ocupa su cupo.
+- Cada operación sobre una solicitud (`formulario`, `fase2`, `reservar`, `entrevista`, `fase4`, `segunda-aprobacion`) inserta una fila en `auditoria_solicitudes` con el actor, la fecha (UTC), la operación, el estado anterior y nuevo y el resultado. Los intentos rechazados se registran con `resultado = 'rechazado'` y el motivo en `detalle`.
+- Cuando cambia el estado resumido de la solicitud, se crea una fila en `notificaciones` para el aspirante.

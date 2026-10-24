@@ -1900,3 +1900,14 @@ td { font-size: 13px; }
   .decision-buttons { flex-wrap: wrap; }
   .decision-buttons button { flex: 1 1 120px; }
 }
+
+/* Notificaciones, segunda aprobación y bitácora */
+.badge-count { margin-left: auto; min-width: 20px; padding: 1px 7px; border-radius: 100px; color: var(--white); background: var(--danger); font-size: 11px; font-weight: 700; text-align: center; }
+.notification-list { display: grid; gap: 10px; }
+.notification-item { padding: 14px 18px; border: 1px solid var(--border); border-radius: 12px; background: var(--white); }
+.notification-item.unread { border-left: 4px solid var(--success); background: var(--success-light); }
+.notification-item p { margin: 0 0 4px; color: var(--text); }
+.notification-item time { color: var(--muted); font-size: 12px; }
+.approval-item { padding: 16px 0; border-top: 1px solid var(--border); }
+.approval-item textarea { width: 100%; margin: 12px 0; }
+.form-group small { color: var(--muted); font-size: 12px; }
