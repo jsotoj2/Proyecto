@@ -34,7 +34,7 @@ try {
     if (process.argv.includes('--exportar-sql')) {
         // Los literales hexadecimales evitan depender del modo de escape de MySQL.
         const literal = valor => `CONVERT(0x${Buffer.from(valor).toString('hex')} USING utf8mb4)`;
-        const sql = `-- Selecciona la base migrada en DBeaver. No contiene la contraseña en texto plano.\nSTART TRANSACTION;\nINSERT INTO usuarios_app (usuario,nombre,correo,password_hash,rol,activo) VALUES (${[cuenta.usuario,cuenta.nombre,cuenta.correo,cuenta.password_hash,rol].map(literal).join(',')},1);\nCOMMIT;\nSELECT id,usuario,nombre,rol,activo FROM administradores;\n`;
+        const sql = `-- Selecciona la base migrada en DBeaver. No contiene la contraseña en texto plano.\nSTART TRANSACTION;\nINSERT INTO usuarios (usuario,nombre,correo,password_hash,rol,activo) VALUES (${[cuenta.usuario,cuenta.nombre,cuenta.correo,cuenta.password_hash,rol].map(literal).join(',')},1);\nCOMMIT;\nSELECT id,usuario,nombre,rol,activo FROM usuarios WHERE rol IN ('admin','superadmin');\n`;
         await fs.writeFile(new URL('../administrador.local.sql', import.meta.url), sql, { flag: 'wx', mode: 0o600 });
         console.log('SQL generado en administrador.local.sql. No lo publiques. Usa ese archivo en tu base migrada.');
     } else {

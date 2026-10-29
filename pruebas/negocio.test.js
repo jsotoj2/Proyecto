@@ -152,20 +152,24 @@ test('más de 10,000 requiere la segunda aprobación de otro administrador', asy
     await assert.rejects(ejecutar(segundo, { tipo: 'segunda-aprobacion', usuario: 'ana', estado: 'rechazada', comentario: 'Tarde' }), { estado: 409 });
     const vista = await servicio.estado(aspirante);
     assert.equal(vista.solicitudes[0].fase4.aprobadoPor, undefined);
+    assert.equal(vista.solicitudes[0].fase4.segundoAprobador, undefined);
+    assert.equal(vista.solicitudes[0].fase2.revisadoPor, undefined);
 });
 
 test('la segunda aprobación también puede rechazar la solicitud', async () => {
     const { repositorio, ejecutar, segundo } = await solicitudEntrevistada('25000');
     await ejecutar(administrador, { tipo: 'fase4', usuario: 'ana', estado: 'aceptada', comentario: 'Primera aprobación' });
     await ejecutar(segundo, { tipo: 'segunda-aprobacion', usuario: 'ana', estado: 'rechazada', comentario: 'Monto excesivo' });
-    assert.deepEqual(repositorio.datos.solicitudes[0].fase4, { estado: 'rechazada', comentario: 'Monto excesivo', aprobadoPor: 'admin' });
+    assert.deepEqual(repositorio.datos.solicitudes[0].fase4, { estado: 'rechazada', comentario: 'Monto excesivo', aprobadoPor: 'admin', segundoAprobador: 'admin2' });
 });
 
 test('cada cambio de estado notifica al aspirante y se registra en la bitácora', async () => {
     const { repositorio, servicio, ejecutar, segundo } = await solicitudEntrevistada('15000');
     await ejecutar(administrador, { tipo: 'fase4', usuario: 'ana', estado: 'aceptada', comentario: 'Primera aprobación' });
     await ejecutar(segundo, { tipo: 'segunda-aprobacion', usuario: 'ana', estado: 'aceptada', comentario: 'Autorizada' });
-    const estados = repositorio.bitacora.map(e => e.estadoNuevo).reverse();
+    // La bitácora también registra operaciones generales, como publicar el horario; aquí solo interesan las de la solicitud.
+    const deSolicitud = repositorio.bitacora.filter(e => e.estadoNuevo);
+    const estados = deSolicitud.map(e => e.estadoNuevo).reverse();
     assert.deepEqual(estados, ['formulario-enviado', 'revision-aceptada', 'entrevista-programada', 'entrevista-realizada', 'resultado-pendiente_aprobacion', 'resultado-aceptada']);
     const ultimo = repositorio.bitacora[0];
     assert.deepEqual(
@@ -178,7 +182,8 @@ test('cada cambio de estado notifica al aspirante y se registra en la bitácora'
     const vista = await servicio.estado(aspirante);
     assert.equal(vista.notificaciones.length, 6);
     assert.equal(vista.auditoria, undefined);
-    assert.equal((await servicio.estado(administrador)).auditoria.length, 6);
+    assert.equal((await servicio.estado(administrador)).auditoria.length, repositorio.bitacora.length);
+    assert.equal(deSolicitud.length, 6);
     const leidas = await servicio.leerNotificaciones(aspirante);
     assert(leidas.notificaciones.every(n => n.leida));
     await assert.rejects(servicio.leerNotificaciones(administrador), { estado: 403 });

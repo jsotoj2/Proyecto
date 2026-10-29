@@ -1,5 +1,6 @@
 import { errorUsuario, texto, validarCuenta, hashPassword, usuarioPublico } from './autenticacionServicio.js';
 import { numero, fechaHorario, privilegio, exigirAspirante, buscarSolicitud, buscarBeca } from './validaciones.js';
+import { correoDeEtapa, tieneAviso } from '../correo/plantillas.js';
 
 // Las solicitudes que superan este monto requieren la aprobación de un segundo administrador.
 export const MONTO_SEGUNDA_APROBACION = 10000;
@@ -41,13 +42,26 @@ export function vistaEstado(datos, usuarios, actor, version) {
         vista.descargas = vista.descargas.filter(descarga => descarga.usuario === actor.usuario);
         vista.actividad = [];
         vista.horarios = vista.horarios.map(horario => ({ ...horario, usuario: horario.usuario === actor.usuario ? horario.usuario : '' }));
-        for (const solicitud of vista.solicitudes) delete solicitud.fase4.aprobadoPor;
+        // El aspirante no ve qué administrador revisó o aprobó su solicitud.
+        for (const solicitud of vista.solicitudes) {
+            delete solicitud.fase2.revisadoPor;
+            delete solicitud.fase4.aprobadoPor;
+            delete solicitud.fase4.segundoAprobador;
+        }
     }
     return vista;
 }
 
 export class PlataformaServicio {
-    constructor(repositorio) { this.repositorio = repositorio; }
+    /**
+     * `urlPanel`: dirección pública de la interfaz, usada en los enlaces de los correos.
+     * `alEncolarCorreos`: se llama tras confirmar una transacción que dejó correos en la bandeja de salida.
+     */
+    constructor(repositorio, { urlPanel = '', alEncolarCorreos = () => {} } = {}) {
+        this.repositorio = repositorio;
+        this.urlPanel = urlPanel.replace(/\/$/, '');
+        this.alEncolarCorreos = alEncolarCorreos;
+    }
 
     async estado(actor) {
         const { datos, usuarios, version } = await this.repositorio.leerEstado();
@@ -76,6 +90,7 @@ export class PlataformaServicio {
     async accion(actor, accion) {
         if (!Number.isSafeInteger(accion.version) || accion.version < 0) errorUsuario('La versión del estado debe ser un entero válido.');
         let nuevoUsuario;
+        let correosEncolados = false;
         if (accion.tipo === 'crear-usuario') {
             privilegio(actor, true);
             if (!['admin', 'aspirante'].includes(accion.usuario?.rol)) errorUsuario('Rol no permitido.');
@@ -111,7 +126,7 @@ export class PlataformaServicio {
                         // La versión y el bloqueo transaccional evitan identificadores duplicados.
                         const id = Math.max(0, ...datos.becas.map(beca => beca.id)) + 1;
                         datos.becas.push({ id, nombre, descripcion, requisitos, cupos });
-                        registrar(`${actor.nombre} creó la beca ${nombre}.`);
+                        registrar(`${actor.nombre} creó la beca ${nombre} con ${cupos} cupos.`);
                         break;
                     }
                     case 'descarga': {
@@ -128,7 +143,7 @@ export class PlataformaServicio {
                         privilegio(actor);
                         const solicitud = buscarSolicitud(datos, accion.usuario);
                         if (solicitud.entrevista.fecha || solicitud.fase4.estado !== 'pendiente') errorUsuario('La solicitud ya avanzó a otra fase.', 409);
-                        solicitud.fase2 = this.decision(accion);
+                        solicitud.fase2 = { ...this.decision(accion), revisadoPor: actor.usuario };
                         registrar(`${actor.nombre} revisó el formulario de ${accion.usuario}.`);
                         break;
                     }
@@ -138,16 +153,19 @@ export class PlataformaServicio {
                         if (!['Presencial', 'Virtual'].includes(accion.modalidad)) errorUsuario('Modalidad no válida.');
                         if (datos.horarios.some(h => h.fecha === accion.fecha && h.hora === accion.hora)) errorUsuario('Ese horario ya existe.', 409);
                         datos.horarios.push({ id: Math.max(0, ...datos.horarios.map(h => h.id)) + 1, fecha: accion.fecha, hora: accion.hora, modalidad: accion.modalidad, ocupado: false, usuario: '' });
+                        registrar(`${actor.nombre} publicó un horario de entrevista (${accion.fecha} ${accion.hora}, ${accion.modalidad}).`);
                         break;
                     }
                     case 'reservar':
                         this.reservar(datos, actor, accion.horarioId);
+                        registrar(`${actor.nombre} reservó su entrevista.`);
                         break;
                     case 'entrevista': {
                         privilegio(actor);
                         const solicitud = buscarSolicitud(datos, accion.usuario);
                         if (solicitud.fase2.estado !== 'aceptada' || solicitud.entrevista.estado !== 'programada') errorUsuario('Primero debe programarse la entrevista.', 409);
                         solicitud.entrevista.estado = 'realizada';
+                        registrar(`${actor.nombre} registró la entrevista de ${accion.usuario} como realizada.`);
                         break;
                     }
                     case 'fase4':
@@ -164,11 +182,13 @@ export class PlataformaServicio {
                         const cupos = numero(accion.cupos, 'Cupos', 0, 100000, true);
                         if (cupos < cuposOcupados(datos, beca.id)) errorUsuario('Los cupos no pueden ser menores que las becas otorgadas o en segunda aprobación.');
                         beca.cupos = cupos;
+                        registrar(`${actor.nombre} cambió los cupos de ${beca.nombre} a ${cupos}.`);
                         break;
                     }
                     case 'crear-usuario':
                         privilegio(actor, true);
                         await transaccion.crearUsuario(nuevoUsuario);
+                        registrar(`${actor.nombre} creó la cuenta ${nuevoUsuario.usuario} (${nuevoUsuario.rol}).`);
                         break;
                     case 'activar-usuario': {
                         privilegio(actor, true);
@@ -178,23 +198,36 @@ export class PlataformaServicio {
                         if (!objetivo) errorUsuario('Usuario inexistente.', 404);
                         if (objetivo.rol === 'superadmin') errorUsuario('No se modifica otra cuenta superadministradora desde este panel.', 403);
                         await transaccion.activarUsuario(objetivo.id, accion.activo);
+                        registrar(`${actor.nombre} ${accion.activo ? 'activó' : 'desactivó'} la cuenta ${objetivo.usuario}.`);
                         break;
                     }
                     default: errorUsuario('Operación no reconocida.');
                 }
-                if (OPERACIONES_SOLICITUD.has(accion.tipo)) await this.auditarCambio(transaccion, datos, actor, accion, objetivo, estadoAnterior);
                 datos.actividad = datos.actividad.slice(0, 500);
-                await transaccion.guardarEstado(datos, Number(version) + 1, actividades);
+                // Los datos se guardan primero: la bitácora, los avisos y los correos hacen referencia a la solicitud.
+                await transaccion.guardarEstado(datos, Number(version) + 1);
+                const descripcion = actividades.map(a => a.texto).join(' ');
+                if (OPERACIONES_SOLICITUD.has(accion.tipo)) {
+                    correosEncolados = await this.auditarCambio(transaccion, datos, actor, accion, objetivo, estadoAnterior, descripcion);
+                } else if (descripcion) {
+                    await transaccion.registrarAuditoria([{
+                        solicitudId: null, usuarioSolicitud: null, actorId: actor.id, actorUsuario: actor.usuario, actorRol: actor.rol,
+                        operacion: accion.tipo, estadoAnterior: null, estadoNuevo: null, resultado: 'exito', descripcion, detalle: '', fecha: new Date().toISOString()
+                    }]);
+                }
             });
         } catch (error) {
             if (error.estado && OPERACIONES_SOLICITUD.has(accion.tipo)) await this.auditarRechazo(actorSesion, accion, error);
             throw error;
         }
+        // El envío ocurre fuera de la transacción: un fallo del correo nunca revierte el cambio de etapa.
+        if (correosEncolados) this.alEncolarCorreos();
         return this.estado(actor);
     }
 
-    // Se escribe en la misma transacción que el cambio: si este se revierte, no queda un registro falso.
-    async auditarCambio(transaccion, datos, actor, accion, objetivo, estadoAnterior) {
+    // Se escribe en la misma transacción que el cambio: si este se revierte, no queda un registro falso
+    // ni se envía un correo. Devuelve true si dejó un correo en la bandeja de salida.
+    async auditarCambio(transaccion, datos, actor, accion, objetivo, estadoAnterior, descripcion = '') {
         const solicitud = datos.solicitudes.find(s => s.usuario === objetivo);
         const estadoNuevo = estadoSolicitud(solicitud);
         const fecha = new Date().toISOString();
@@ -208,11 +241,20 @@ export class PlataformaServicio {
         };
         await transaccion.registrarAuditoria([{
             solicitudId: solicitud.id, usuarioSolicitud: solicitud.usuario, actorId: actor.id, actorUsuario: actor.usuario, actorRol: actor.rol,
-            operacion: accion.tipo, estadoAnterior, estadoNuevo, resultado: 'exito', detalle: detalles[accion.tipo]().slice(0, 2000), fecha
+            operacion: accion.tipo, estadoAnterior, estadoNuevo, resultado: 'exito', descripcion, detalle: detalles[accion.tipo]().slice(0, 2000), fecha
         }]);
-        if (estadoNuevo !== estadoAnterior && AVISOS[estadoNuevo]) {
-            await transaccion.crearNotificaciones([{ usuario: solicitud.usuario, solicitudId: solicitud.id, mensaje: AVISOS[estadoNuevo], fecha }]);
-        }
+        if (estadoNuevo === estadoAnterior || !AVISOS[estadoNuevo]) return false;
+        await transaccion.crearNotificaciones([{ usuario: solicitud.usuario, solicitudId: solicitud.id, mensaje: AVISOS[estadoNuevo], fecha }]);
+        const aspirante = await transaccion.buscarUsuario(solicitud.usuario);
+        if (!aspirante?.correo || !tieneAviso(estadoNuevo)) return false;
+        const correo = correoDeEtapa(estadoNuevo, {
+            nombre: aspirante.nombre,
+            beca: datos.becas.find(b => b.id === solicitud.becaId)?.nombre,
+            solicitud,
+            enlace: this.urlPanel && `${this.urlPanel}/panel/solicitud`
+        });
+        await transaccion.encolarCorreos([{ usuario: solicitud.usuario, destinatario: aspirante.correo, ...correo }]);
+        return true;
     }
 
     guardarFormulario(datos, actor, accion) {
@@ -227,15 +269,16 @@ export class PlataformaServicio {
             monto: String(Math.round(numero(entrada.monto, 'Monto solicitado', 1, 10000000) * 100) / 100)
         };
         for (const [campo, maximo] of [['telefono', 40], ['direccion', 500], ['estudios', 300], ['motivo', 3000]]) formulario[campo] = texto(entrada[campo], campo, maximo);
+        if (!/^\d{8}$/.test(formulario.telefono)) errorUsuario('El teléfono debe tener exactamente 8 dígitos.');
         let solicitud = datos.solicitudes.find(s => s.usuario === actor.usuario);
         if (solicitud && solicitud.fase2.estado !== 'pendiente') errorUsuario('El formulario ya fue revisado y no puede modificarse.', 409);
         if (!solicitud) {
             solicitud = {
                 id: Math.max(0, ...datos.solicitudes.map(s => s.id)) + 1,
                 usuario: actor.usuario, dpi: actor.dpi, fechaFormulario: new Date().toISOString().slice(0, 10),
-                fase2: { estado: 'pendiente', comentario: '' },
+                fase2: { estado: 'pendiente', comentario: '', revisadoPor: '' },
                 entrevista: { estado: 'pendiente', fecha: '', hora: '', modalidad: '' },
-                fase4: { estado: 'pendiente', comentario: '', aprobadoPor: '' }
+                fase4: { estado: 'pendiente', comentario: '', aprobadoPor: '', segundoAprobador: '' }
             };
             datos.solicitudes.push(solicitud);
         }
@@ -267,7 +310,7 @@ export class PlataformaServicio {
         const decision = this.decision(accion);
         if (decision.estado === 'aceptada' && cuposOcupados(datos, beca.id, solicitud.id) >= beca.cupos) errorUsuario('No existen cupos disponibles.', 409);
         const requiereSegunda = decision.estado === 'aceptada' && Number(solicitud.formulario?.monto) > MONTO_SEGUNDA_APROBACION;
-        solicitud.fase4 = { ...decision, estado: requiereSegunda ? 'pendiente_aprobacion' : decision.estado, aprobadoPor: decision.estado === 'aceptada' ? actor.usuario : '' };
+        solicitud.fase4 = { ...decision, estado: requiereSegunda ? 'pendiente_aprobacion' : decision.estado, aprobadoPor: decision.estado === 'aceptada' ? actor.usuario : '', segundoAprobador: '' };
     }
 
     segundaAprobacion(datos, actor, accion) {
@@ -277,6 +320,6 @@ export class PlataformaServicio {
         if (solicitud.fase4.aprobadoPor === actor.usuario) errorUsuario('La segunda aprobación debe realizarla un administrador distinto al primero.', 403);
         const decision = this.decision(accion);
         if (decision.estado === 'aceptada' && cuposOcupados(datos, solicitud.becaId, solicitud.id) >= buscarBeca(datos, solicitud.becaId).cupos) errorUsuario('No existen cupos disponibles.', 409);
-        solicitud.fase4 = { ...decision, aprobadoPor: solicitud.fase4.aprobadoPor };
+        solicitud.fase4 = { ...decision, aprobadoPor: solicitud.fase4.aprobadoPor, segundoAprobador: actor.usuario };
     }
 }

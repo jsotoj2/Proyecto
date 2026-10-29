@@ -11,6 +11,7 @@ export class RepositorioPrueba {
         this.sesiones = new Map();
         this.bitacora = [];
         this.avisos = [];
+        this.correos = [];
     }
     async leerEstado() { return structuredClone({ datos: this.datos, usuarios: this.usuarios, version: this.version }); }
     async leerEstadoBloqueado() { return this.leerEstado(); }
@@ -26,12 +27,21 @@ export class RepositorioPrueba {
     async crearNotificaciones(lista) { for (const n of lista) this.avisos.unshift({ ...n, id: this.avisos.length + 1, leida: false }); }
     async notificaciones(usuario) { return structuredClone(this.avisos.filter(n => n.usuario === usuario)); }
     async marcarNotificacionesLeidas(usuario) { for (const n of this.avisos) if (n.usuario === usuario) n.leida = true; }
+    async encolarCorreos(lista) { for (const c of lista) this.correos.push({ ...c, id: this.correos.length + 1, estado: 'pendiente', intentos: 0, disponible: 0 }); }
+    async reclamarCorreos(limite = 20, maxIntentos = 5) {
+        const listos = this.correos.filter(c => c.estado === 'pendiente' && c.intentos < maxIntentos && c.disponible <= Date.now()).slice(0, limite);
+        for (const c of listos) Object.assign(c, { estado: 'enviando', intentos: c.intentos + 1 });
+        return structuredClone(listos);
+    }
+    async marcarCorreoEnviado(id) { Object.assign(this.correos.find(c => c.id === id), { estado: 'enviado', ultimoError: null }); }
+    async marcarCorreoFallido(id, error, { definitivo, esperaSegundos }) {
+        Object.assign(this.correos.find(c => c.id === id), { estado: definitivo ? 'fallido' : 'pendiente', ultimoError: String(error), disponible: Date.now() + esperaSegundos * 1000 });
+    }
     async documentos() { return []; }
-    async previas() { return []; }
     async documento() { return null; }
     async transaccion(operacion) {
-        const respaldo = { ...await this.leerEstado(), bitacora: structuredClone(this.bitacora), avisos: structuredClone(this.avisos) };
+        const respaldo = { ...await this.leerEstado(), bitacora: structuredClone(this.bitacora), avisos: structuredClone(this.avisos), correos: structuredClone(this.correos) };
         try { return await operacion(this); }
-        catch (error) { Object.assign(this, { datos: respaldo.datos, usuarios: respaldo.usuarios, version: respaldo.version, bitacora: respaldo.bitacora, avisos: respaldo.avisos }); throw error; }
+        catch (error) { Object.assign(this, { datos: respaldo.datos, usuarios: respaldo.usuarios, version: respaldo.version, bitacora: respaldo.bitacora, avisos: respaldo.avisos, correos: respaldo.correos }); throw error; }
     }
 }

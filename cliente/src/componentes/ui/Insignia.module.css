@@ -1,0 +1,25 @@
+.insignia {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 8px;
+    border-radius: var(--radio-sm);
+    font-size: var(--texto-xs);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.punto {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.neutro { background: var(--gris-100); color: var(--gris-700); }
+.info { background: var(--info-100); color: var(--info-700); }
+.exito { background: var(--exito-100); color: var(--exito-700); }
+.advertencia { background: var(--advertencia-100); color: var(--advertencia-700); }
+.error { background: var(--error-100); color: var(--error-700); }
+.acento { background: var(--acento-100); color: var(--acento-700); }
+.primario { background: var(--primario-100); color: var(--primario-700); }

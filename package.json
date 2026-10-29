@@ -1,19 +1,51 @@
 {
-  "name": "becas-backend",
+  "name": "becas-plataforma",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Plataforma de becas: interfaz, API y persistencia MySQL",
-  "engines": { "node": ">=22" },
+  "description": "Plataforma de becas: interfaz React, API y persistencia MySQL",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
+    "dev": "vite",
+    "dev:servidor": "node --env-file=.env --watch servidor/iniciar.js",
+    "build": "vite build",
+    "preview": "npm run build && npm start",
+    "demo": "vite build && node scripts/demo.js",
+    "demo:servidor": "node scripts/demo.js",
+    "dev:demo": "vite --mode demo",
     "start": "node --env-file=.env servidor/iniciar.js",
     "probar-db": "node --env-file=.env scripts/probarConexion.js",
+    "probar-correo": "node --env-file=.env scripts/probarCorreo.js",
     "migrar": "node --env-file=.env scripts/migrar.js",
+    "trasladar": "node --env-file=.env scripts/trasladarDatos.js",
     "crear-admin": "node --env-file=.env scripts/crearAdministrador.js",
     "generar-sql-admin": "node scripts/crearAdministrador.js --exportar-sql",
-    "test": "node --test pruebas/*.test.js",
+    "test": "node --test pruebas/*.test.js && vitest run",
+    "test:servidor": "node --test pruebas/*.test.js",
+    "test:cliente": "vitest run",
     "test:integracion": "node --env-file=.env.pruebas --test pruebas/integracion.mysql.js",
     "verificar": "node scripts/verificarSintaxis.js"
   },
-  "dependencies": { "mysql2": "^3.24.5" }
+  "dependencies": {
+    "@fontsource-variable/source-sans-3": "^5.3.1",
+    "jspdf": "^4.2.1",
+    "lucide-react": "^1.62.0",
+    "mysql2": "^3.24.5",
+    "nodemailer": "^10.2.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-router": "^7.18.5",
+    "sweetalert2": "^11.26.25"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.8",
+    "@vitejs/plugin-react": "^6.1.2",
+    "jsdom": "^29.1.1",
+    "vite": "^8.3.5",
+    "vitest": "^5.0.5"
+  }
 }

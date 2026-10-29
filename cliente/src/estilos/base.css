@@ -1,0 +1,219 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--fondo);
+    color: var(--texto);
+    font-family: var(--fuente);
+    font-size: var(--texto-md);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+    margin: 0;
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+    color: var(--gris-900);
+}
+
+h1 { font-size: var(--texto-2xl); font-weight: 700; }
+h2 { font-size: var(--texto-xl); font-weight: 650; }
+h3 { font-size: var(--texto-lg); font-weight: 650; }
+
+p {
+    margin: 0;
+}
+
+a {
+    color: var(--primario-600);
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
+    color: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+/* Los campos numéricos se escriben sin las flechas de incremento del navegador. */
+input[type='number'] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+    margin: 0;
+    -webkit-appearance: none;
+}
+
+:focus-visible {
+    outline: none;
+    box-shadow: var(--foco);
+}
+
+img,
+svg {
+    display: block;
+}
+
+/* Las anclas (#entrevista) no quedan ocultas bajo la barra superior fija. */
+[id] {
+    scroll-margin-top: calc(var(--alto-barra-superior) + var(--espacio-4));
+}
+
+.solo-lectores {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+.saltar-contenido {
+    position: fixed;
+    top: var(--espacio-2);
+    left: var(--espacio-2);
+    z-index: 100;
+    padding: var(--espacio-2) var(--espacio-4);
+    border-radius: var(--radio-md);
+    background: var(--primario-700);
+    color: var(--blanco);
+    transform: translateY(-200%);
+    transition: transform var(--transicion);
+}
+
+.saltar-contenido:focus {
+    transform: none;
+}
+
+/* Tablas: patrón compartido por los listados del panel. */
+.tabla-contenedor {
+    overflow-x: auto;
+    border: 1px solid var(--borde);
+    border-radius: var(--radio-lg);
+    background: var(--superficie);
+}
+
+.tabla {
+    width: 100%;
+    min-width: 680px;
+    border-collapse: collapse;
+    font-size: var(--texto-sm);
+}
+
+.tabla th {
+    padding: var(--espacio-3) var(--espacio-4);
+    background: var(--gris-50);
+    color: var(--texto-suave);
+    font-size: var(--texto-xs);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-align: left;
+    text-transform: uppercase;
+    white-space: nowrap;
+    border-bottom: 1px solid var(--borde);
+}
+
+.tabla td {
+    padding: var(--espacio-3) var(--espacio-4);
+    border-bottom: 1px solid var(--gris-100);
+    vertical-align: middle;
+}
+
+.tabla tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.tabla tbody tr:hover {
+    background: var(--primario-50);
+}
+
+.tabla small {
+    display: block;
+    color: var(--texto-suave);
+}
+
+.tabla .celda-acciones {
+    text-align: right;
+    white-space: nowrap;
+}
+
+/* Rejillas de diseño reutilizables */
+.pila {
+    display: grid;
+    gap: var(--espacio-6);
+}
+
+.rejilla-2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--espacio-6);
+}
+
+.rejilla-auto {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--espacio-5);
+}
+
+.fila {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--espacio-3);
+}
+
+.fila-separada {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--espacio-3);
+}
+
+.texto-suave {
+    color: var(--texto-suave);
+}
+
+.texto-pequeno {
+    font-size: var(--texto-sm);
+}
+
+@media (max-width: 900px) {
+    .rejilla-2 {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Tabla dentro de una <Tarjeta relleno={false}> */
+.tabla-contenedor.integrada {
+    border: 0;
+    border-top: 1px solid var(--borde);
+    border-radius: 0 0 var(--radio-lg) var(--radio-lg);
+}

@@ -1,0 +1,43 @@
+.marca {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--espacio-3);
+}
+
+.logo {
+    width: 36px;
+    height: 36px;
+    flex: none;
+}
+
+.fondoLogo { fill: var(--primario-700); }
+.trazo { fill: var(--blanco); }
+.linea { stroke: var(--blanco); }
+
+.texto {
+    display: grid;
+    line-height: 1.2;
+}
+
+.texto strong {
+    color: var(--gris-900);
+    font-size: var(--texto-md);
+    font-weight: 700;
+}
+
+.texto span {
+    color: var(--texto-suave);
+    font-size: 0.75rem;
+}
+
+.claro .fondoLogo { fill: var(--blanco); }
+.claro .trazo { fill: var(--primario-700); }
+.claro .linea { stroke: var(--primario-700); }
+
+.claro .texto strong {
+    color: var(--blanco);
+}
+
+.claro .texto span {
+    color: var(--primario-200);
+}

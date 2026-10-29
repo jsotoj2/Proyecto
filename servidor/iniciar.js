@@ -6,8 +6,11 @@ import { AutenticacionServicio } from './servicios/autenticacionServicio.js';
 import { PlataformaServicio } from './servicios/plataformaServicio.js';
 import { crearRutas } from './api/rutas.js';
 import { crearAplicacion } from './api/aplicacion.js';
+import { transporteCorreo } from './configuracion/correo.js';
+import { crearDespachador } from './correo/despachador.js';
 
 let conexion;
+let despachador;
 try {
     const puerto = enteroConfiguracion(process.env.PORT, 'PORT', 3000, 1, 65535);
     const origen = new URL(process.env.APP_ORIGIN ?? `http://localhost:${puerto}`).origin;
@@ -17,7 +20,17 @@ try {
     await conexion.execute('SELECT 1');
     const repositorio = new PlataformaRepositorio(conexion);
     await repositorio.comprobarEsquema();
-    const rutas = crearRutas({ autenticacion: new AutenticacionServicio(repositorio), plataforma: new PlataformaServicio(repositorio), repositorio, origen, cookieSegura });
+    // Sin transporte, los correos quedan en la bandeja de salida hasta que se configure uno.
+    const transporte = transporteCorreo();
+    if (transporte) {
+        despachador = crearDespachador({ repositorio, transporte });
+        despachador.iniciar();
+        console.log(`Correos de notificación: ${transporte.nombre === 'smtp' ? 'SMTP' : 'archivos HTML en correos-locales/'}`);
+    } else {
+        console.log('Correos de notificación desactivados: se guardarán en la bandeja de salida.');
+    }
+    const plataforma = new PlataformaServicio(repositorio, { urlPanel: origen, alEncolarCorreos: () => despachador?.procesar() });
+    const rutas = crearRutas({ autenticacion: new AutenticacionServicio(repositorio), plataforma, repositorio, origen, cookieSegura });
     const servidor = http.createServer(crearAplicacion({ rutas, comprobarConexion: () => conexion.execute('SELECT 1') }));
     servidor.requestTimeout = 30000;
     servidor.headersTimeout = 15000;
@@ -30,7 +43,7 @@ try {
         deteniendo = true;
         const limite = setTimeout(() => servidor.closeAllConnections(), 10000);
         limite.unref();
-        servidor.close(async () => { clearTimeout(limite); await conexion.end(); });
+        servidor.close(async () => { clearTimeout(limite); await despachador?.detener(); await conexion.end(); });
     };
     process.once('SIGTERM', detener);
     process.once('SIGINT', detener);

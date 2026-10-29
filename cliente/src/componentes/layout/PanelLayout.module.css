@@ -1,0 +1,308 @@
+.panel {
+    display: grid;
+    grid-template-columns: var(--ancho-barra) minmax(0, 1fr);
+    min-height: 100vh;
+    /* El menú móvil fuera de pantalla no debe generar desplazamiento horizontal. */
+    overflow-x: clip;
+}
+
+/* Barra lateral: azul marino plano */
+.barraLateral {
+    position: sticky;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background: var(--primario-900);
+    color: var(--primario-100);
+}
+
+.cabeceraLateral {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--alto-barra-superior);
+    padding: 0 var(--espacio-5);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.enlaceMarca {
+    text-decoration: none;
+}
+
+.cerrarMenu {
+    display: none;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border: 0;
+    border-radius: var(--radio-md);
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--blanco);
+}
+
+.navegacion {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--espacio-5) var(--espacio-3);
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.grupo {
+    display: grid;
+    gap: 2px;
+}
+
+.grupo + .grupo {
+    margin-top: var(--espacio-6);
+}
+
+.tituloGrupo {
+    padding: 0 var(--espacio-3) var(--espacio-2);
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.enlace {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--espacio-3);
+    min-height: 42px;
+    padding: 0 var(--espacio-3);
+    border-radius: var(--radio-md);
+    color: rgba(255, 255, 255, 0.78);
+    font-size: var(--texto-sm);
+    font-weight: 500;
+    text-decoration: none;
+    transition: background var(--transicion), color var(--transicion);
+}
+
+.enlace svg {
+    flex: none;
+    opacity: 0.8;
+}
+
+.enlace:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--blanco);
+}
+
+.activo,
+.activo:hover {
+    background: var(--primario-700);
+    color: var(--blanco);
+    font-weight: 650;
+}
+
+.activo::before {
+    position: absolute;
+    top: 9px;
+    bottom: 9px;
+    left: calc(-1 * var(--espacio-3));
+    width: 3px;
+    border-radius: 0 2px 2px 0;
+    background: var(--blanco);
+    content: '';
+}
+
+.activo svg {
+    opacity: 1;
+}
+
+.enlace:focus-visible {
+    box-shadow: 0 0 0 2px var(--blanco);
+}
+
+.contador {
+    min-width: 22px;
+    margin-left: auto;
+    padding: 1px 7px;
+    border-radius: var(--radio-completo);
+    background: var(--blanco);
+    color: var(--primario-900);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-align: center;
+}
+
+.pieLateral {
+    margin: 0;
+    padding: var(--espacio-4) var(--espacio-5);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.6875rem;
+    line-height: 1.6;
+}
+
+/* Columna principal */
+.columna {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.barraSuperior {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: var(--espacio-3);
+    height: var(--alto-barra-superior);
+    padding: 0 var(--espacio-8);
+    border-bottom: 1px solid var(--borde);
+    background: var(--superficie);
+}
+
+.botonMenu {
+    display: none;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border: 1px solid var(--borde);
+    border-radius: var(--radio-md);
+    background: var(--superficie);
+    color: var(--gris-700);
+}
+
+.marcaMovil {
+    display: none;
+}
+
+.migas {
+    display: flex;
+    align-items: center;
+    gap: var(--espacio-2);
+    min-width: 0;
+    color: var(--gris-400);
+    font-size: var(--texto-sm);
+}
+
+.migas a {
+    overflow: hidden;
+    color: var(--texto-suave);
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.migas a:hover {
+    color: var(--primario-700);
+}
+
+.migas a[aria-current='page'],
+.migas a:last-child:not(:first-child) {
+    color: var(--gris-900);
+    font-weight: 600;
+}
+
+.accionesSuperior {
+    display: flex;
+    align-items: center;
+    gap: var(--espacio-3);
+    margin-left: auto;
+}
+
+.campana {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--borde);
+    border-radius: var(--radio-md);
+    background: var(--superficie);
+    color: var(--gris-700);
+    transition: border-color var(--transicion), color var(--transicion), background var(--transicion);
+}
+
+.campana:hover {
+    border-color: var(--primario-200);
+    background: var(--primario-50);
+    color: var(--primario-700);
+}
+
+.puntoCampana {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 20px;
+    padding: 0 5px;
+    border: 2px solid var(--superficie);
+    border-radius: var(--radio-completo);
+    background: var(--error-500);
+    color: var(--blanco);
+    font-size: 0.6875rem;
+    font-weight: 800;
+    line-height: 16px;
+    text-align: center;
+}
+
+.contenido {
+    display: grid;
+    align-content: start;
+    gap: var(--espacio-4);
+    width: 100%;
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: var(--espacio-8);
+    outline: none;
+}
+
+.fondo {
+    display: none;
+}
+
+@media (max-width: 960px) {
+    .panel {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .barraLateral {
+        position: fixed;
+        inset: 0 auto 0 0;
+        z-index: 50;
+        width: min(300px, 86vw);
+        box-shadow: var(--sombra-lg);
+        transform: translateX(-105%);
+        transition: transform 220ms ease;
+    }
+
+    .menuAbierto .barraLateral {
+        transform: none;
+    }
+
+    .cerrarMenu,
+    .botonMenu {
+        display: grid;
+    }
+
+    .marcaMovil {
+        display: inline-flex;
+    }
+
+    .migas {
+        display: none;
+    }
+
+    .fondo {
+        position: fixed;
+        inset: 0;
+        z-index: 40;
+        display: block;
+        border: 0;
+        background: var(--velo);
+    }
+
+    .barraSuperior {
+        padding: 0 var(--espacio-4);
+    }
+
+    .contenido {
+        padding: var(--espacio-6) var(--espacio-4);
+    }
+}

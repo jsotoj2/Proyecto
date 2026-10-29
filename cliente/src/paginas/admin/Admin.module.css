@@ -1,0 +1,283 @@
+/* Inicio */
+.pendientes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--espacio-3);
+}
+
+.pendiente {
+    position: relative;
+    display: grid;
+    gap: var(--espacio-1);
+    padding: var(--espacio-4);
+    border: 1px solid var(--borde);
+    border-radius: var(--radio-lg);
+    color: var(--texto-suave);
+    text-decoration: none;
+    transition: border-color var(--transicion), background var(--transicion);
+}
+
+.pendiente strong {
+    color: var(--gris-900);
+    font-size: var(--texto-2xl);
+    line-height: 1.1;
+}
+
+.pendiente span {
+    font-size: var(--texto-sm);
+}
+
+.pendiente:hover {
+    border-color: var(--primario-200);
+    background: var(--primario-50);
+}
+
+.conPendientes {
+    border-left: 3px solid var(--primario-600);
+}
+
+.conPendientes strong {
+    color: var(--primario-700);
+}
+
+.flecha {
+    position: absolute;
+    top: var(--espacio-4);
+    right: var(--espacio-4);
+}
+
+.actividad {
+    display: grid;
+    gap: var(--espacio-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.actividad li {
+    display: flex;
+    gap: var(--espacio-3);
+}
+
+.actividad div {
+    display: grid;
+}
+
+.actividad strong {
+    font-size: var(--texto-sm);
+    font-weight: 550;
+}
+
+.actividad span {
+    color: var(--texto-suave);
+    font-size: var(--texto-xs);
+}
+
+.puntoActividad {
+    flex: none;
+    width: 10px;
+    height: 10px;
+    margin-top: 6px;
+    border: 2px solid var(--primario-500);
+    border-radius: 50%;
+}
+
+/* Filtros de listados */
+.filtros {
+    display: grid;
+    grid-template-columns: minmax(220px, 2fr) minmax(180px, 1fr);
+    gap: var(--espacio-3);
+    align-items: end;
+}
+
+.buscador {
+    position: relative;
+}
+
+.buscador svg {
+    position: absolute;
+    bottom: 13px;
+    left: 12px;
+    z-index: 1;
+    color: var(--gris-400);
+    pointer-events: none;
+}
+
+.buscador input {
+    padding-left: 38px;
+}
+
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--espacio-2);
+}
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--espacio-2);
+    min-height: 34px;
+    padding: 0 var(--espacio-3);
+    border: 1px solid var(--borde-fuerte);
+    border-radius: var(--radio-md);
+    background: var(--superficie);
+    color: var(--gris-700);
+    font-size: var(--texto-xs);
+    font-weight: 600;
+}
+
+.chip:hover {
+    border-color: var(--primario-500);
+}
+
+.chip[aria-pressed='true'] {
+    border-color: var(--primario-700);
+    background: var(--primario-700);
+    color: var(--blanco);
+}
+
+.chip span {
+    min-width: 20px;
+    padding: 0 6px;
+    border-radius: var(--radio-sm);
+    background: var(--gris-100);
+    color: var(--gris-700);
+    text-align: center;
+}
+
+.chip[aria-pressed='true'] span {
+    background: rgba(255, 255, 255, 0.2);
+    color: var(--blanco);
+}
+
+.aspirante {
+    display: grid;
+}
+
+.aspirante strong {
+    font-weight: 600;
+}
+
+.resultados {
+    color: var(--texto-suave);
+    font-size: var(--texto-sm);
+}
+
+/* Expediente */
+.expediente {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(280px, 1fr);
+    gap: var(--espacio-6);
+    align-items: start;
+}
+
+.lateral {
+    position: sticky;
+    top: calc(var(--alto-barra-superior) + var(--espacio-6));
+    display: grid;
+    gap: var(--espacio-6);
+}
+
+.acciones {
+    display: grid;
+    gap: var(--espacio-3);
+}
+
+.historial {
+    display: grid;
+    gap: var(--espacio-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.historial li {
+    display: grid;
+    gap: 2px;
+    padding-left: var(--espacio-4);
+    border-left: 2px solid var(--primario-100);
+    font-size: var(--texto-sm);
+}
+
+.historial li.rechazado {
+    border-left-color: var(--error-100);
+}
+
+.historial span {
+    color: var(--texto-suave);
+    font-size: var(--texto-xs);
+}
+
+/* Formularios por beca */
+.programa {
+    display: grid;
+    gap: var(--espacio-4);
+}
+
+.programa h3 {
+    font-size: var(--texto-md);
+}
+
+.cifras {
+    display: flex;
+    gap: var(--espacio-3);
+}
+
+.cifras div {
+    display: grid;
+    flex: 1;
+    padding: var(--espacio-3);
+    border-radius: var(--radio-md);
+    background: var(--gris-50);
+}
+
+.cifras span {
+    color: var(--texto-suave);
+    font-size: var(--texto-xs);
+}
+
+.cifras strong {
+    font-size: var(--texto-xl);
+}
+
+/* Entrevistas */
+.formularioHorario {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+    gap: var(--espacio-4);
+    align-items: start;
+}
+
+/* Alinea el botón con los controles aunque un campo muestre un error debajo. */
+.formularioHorario > button {
+    margin-top: 31px;
+}
+
+/* Segunda aprobación */
+.aprobacion {
+    display: grid;
+    gap: var(--espacio-4);
+}
+
+@media (max-width: 1080px) {
+    .expediente {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .lateral {
+        position: static;
+        order: -1;
+    }
+}
+
+@media (max-width: 760px) {
+    .filtros,
+    .formularioHorario {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .formularioHorario > button {
+        margin-top: 0;
+    }
+}

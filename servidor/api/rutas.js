@@ -68,12 +68,8 @@ export function crearRutas({ autenticacion, plataforma, repositorio, origen, coo
             // Compatibilidad temporal para clientes anteriores, con las mismas validaciones.
             respuesta.setHeader('Deprecation', 'true');
             resultado = await plataforma.accion(actor, await leerJson(peticion));
-        } else if (metodo === 'GET' && ruta === '/previas') resultado = await repositorio.previas(actor);
-        else if (metodo === 'GET' && ruta === '/documentos') resultado = await repositorio.documentos(actor);
-        else if (metodo === 'GET' && ruta.startsWith('/pdf-previo/')) {
-            responderArchivo(respuesta, await repositorio.documentoPrevio(actor, decodeURIComponent(ruta.slice(12))));
-            return true;
-        } else if (/^\/pdf\/[1-9]\d*$/.test(ruta)) {
+        } else if (metodo === 'GET' && ruta === '/documentos') resultado = await repositorio.documentos(actor);
+        else if (/^\/pdf\/[1-9]\d*$/.test(ruta)) {
             const id = Number(ruta.slice(5));
             if (!Number.isSafeInteger(id)) errorUsuario('Identificador de documento no válido.');
             if (metodo === 'GET') {

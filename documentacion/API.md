@@ -57,7 +57,6 @@ Los estados de revisión y resultado admiten `aceptada` o `rechazada`. Las horas
 - `GET /documentos`: documentos visibles para el usuario.
 - `GET /pdf/:id`: descarga de un adjunto autorizado.
 - `POST /pdf/:id`: cuerpo binario `application/pdf`, cabecera `X-File-Name` codificada con `encodeURIComponent`; máximo 5 MB y firma `%PDF-`. Solo se adjunta a una solicitud propia sin revisar.
-- `GET /previas`: expedientes históricos visibles.
 - `GET /pdf-previo/:expediente`: PDF histórico autorizado.
 - `GET /api/salud`: comprueba acceso a MySQL, sin revelar configuración.
 
@@ -74,5 +73,11 @@ El límite de intentos de acceso es de 15 por minuto e IP en cada proceso. Un de
 ## Segunda aprobación, bitácora y notificaciones
 
 - Una solicitud con `formulario.monto` mayor de 10,000 (`MONTO_SEGUNDA_APROBACION`) necesita dos aprobaciones de administradores distintos. Mientras espera, ocupa su cupo.
-- Cada operación sobre una solicitud (`formulario`, `fase2`, `reservar`, `entrevista`, `fase4`, `segunda-aprobacion`) inserta una fila en `auditoria_solicitudes` con el actor, la fecha (UTC), la operación, el estado anterior y nuevo y el resultado. Los intentos rechazados se registran con `resultado = 'rechazado'` y el motivo en `detalle`.
+- Cada operación sobre una solicitud (`formulario`, `fase2`, `reservar`, `entrevista`, `fase4`, `segunda-aprobacion`) inserta una fila en `bitacora` con el actor, la fecha (UTC), la operación, el estado anterior y nuevo y el resultado. Los intentos rechazados se registran con `resultado = 'rechazado'` y el motivo en `detalle`. Las operaciones administrativas (`horario`, `crear-beca`, `cupos`, `crear-usuario`, `activar-usuario`) también dejan una fila, sin estados de solicitud.
 - Cuando cambia el estado resumido de la solicitud, se crea una fila en `notificaciones` para el aspirante.
+
+## Correos de notificación
+
+- Al cambiar el estado resumido de una solicitud se crea la notificación y, en la misma transacción, una fila en `correos_salientes` con el asunto, el texto y el HTML del correo para el aspirante.
+- `servidor/correo/despachador.js` reclama los pendientes con `FOR UPDATE SKIP LOCKED` (varios procesos no envían el mismo correo), los envía y los marca como `enviado`. Un fallo vuelve a `pendiente` con espera de 1, 2, 4… minutos; al quinto intento queda `fallido` con `ultimo_error`.
+- El transporte se elige con `CORREO_TRANSPORTE` (`smtp`, `archivo` o `desactivado`); ver `servidor/configuracion/correo.js`.

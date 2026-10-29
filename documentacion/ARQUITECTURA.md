@@ -3,7 +3,7 @@
 El navegador consume la API del mismo servidor. Las rutas traducen HTTP a operaciones de negocio; los servicios validan permisos y transiciones; los repositorios ejecutan SQL parametrizado sobre un pool MySQL. Ningún archivo de configuración se publica por HTTP.
 
 ```text
-publico/ → servidor/api/ → servidor/servicios/ → servidor/repositorios/ → MySQL
+cliente/ → servidor/api/ → servidor/servicios/ → servidor/repositorios/ → MySQL
                                   ↑                       ↑
                            validaciones             configuracion/
 ```
@@ -12,7 +12,7 @@ publico/ → servidor/api/ → servidor/servicios/ → servidor/repositorios/ �
 
 | Carpeta | Responsabilidad |
 | --- | --- |
-| `publico/` | Páginas, estilos, componentes y cliente HTTP |
+| `cliente/` | Interfaz React con Vite: rutas por rol, componentes, alertas, cliente HTTP y constancia PDF. `npm run build` genera `cliente/dist/`, que publica el servidor |
 | `servidor/api/` | Rutas, cuerpos de petición, respuestas y errores HTTP |
 | `servidor/configuracion/` | Validación de variables y creación del pool |
 | `servidor/servicios/` | Autenticación, permisos y proceso de postulación |
@@ -22,13 +22,19 @@ publico/ → servidor/api/ → servidor/servicios/ → servidor/repositorios/ �
 | `pruebas/` | Pruebas de negocio, API, repositorios, cliente e integración |
 | `legado/` | Archivos anteriores conservados como referencia; no se ejecutan ni se publican |
 
+## Interfaz
+
+- **Rutas por rol.** React Router define `/acceso`, `/registro` y `/panel/...`. Las protecciones de `cliente/src/rutas/` solo ordenan la navegación: cada permiso se vuelve a comprobar en el servidor. El servidor devuelve `index.html` para cualquier ruta sin extensión, así que los enlaces directos funcionan.
+- **Estado.** `api/almacenEstado.js` guarda la respuesta de `GET /estado`, reutiliza lecturas de menos de 15 segundos y envía la `version` en cada escritura; ante un 409 recarga el estado. React escapa el contenido al mostrarlo, por lo que el cliente ya no transforma los textos.
+- **Alertas.** `componentes/alertas/alertas.js` centraliza las confirmaciones, los éxitos, los errores y los comentarios obligatorios con SweetAlert2. `<Alerta>` muestra los mensajes dentro de la página.
+- **Formulario y constancia.** El aspirante completa en línea todos los datos que antes pedía el PDF impreso. Al enviar la solicitud puede descargar una constancia PDF (`utilidades/constanciaPdf.js`) con esa información; los administradores generan la misma constancia desde el expediente.
+- **Diseño.** Los colores, espacios y tipografía salen de `estilos/tokens.css`; cada componente usa su propio CSS Module.
+
 ## Datos y compatibilidad
 
-`usuarios_app` es la única tabla de autenticación. Su columna `rol` diferencia aspirantes, administradores y superadministradores. `administradores` es una vista de consulta sin contraseñas; no es una segunda tabla de credenciales.
+El esquema, sus relaciones y las reglas que garantiza están en [BASE-DE-DATOS.md](BASE-DE-DATOS.md). En resumen: `usuarios` es la única tabla de cuentas (la columna `rol` distingue los tres perfiles), `solicitudes` guarda las cuatro etapas con el formulario en columnas, y todas las relaciones usan el `id`.
 
-Las solicitudes actuales viven en `postulaciones`, los programas en `programas_beca`, las reservas en `horarios_entrevista` y las descargas en `descargas_formulario`. Los atributos del formulario y la lista de requisitos siguen usando JSON como datos de un registro; ya no se almacena toda la aplicación en un único documento.
-
-Las tablas `estudiantes`, `becas`, `solicitudes` y `documentos` pertenecen al circuito histórico y se conservan. No deben confundirse con las postulaciones del panel. Los adjuntos actuales usan `documentos_plataforma`, con claves foráneas hacia usuario y postulación.
+`PlataformaRepositorio` traduce entre esas tablas y el objeto de estado que usa el servicio (`becas`, `solicitudes`, `horarios`, `descargas`, `actividad`). Las reglas de negocio no dependen de cómo se guardan los datos.
 
 ## Concurrencia
 

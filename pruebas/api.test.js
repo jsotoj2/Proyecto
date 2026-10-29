@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { PassThrough } from 'node:stream';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
 import { crearRutas } from '../servidor/api/rutas.js';
 import { crearAplicacion } from '../servidor/api/aplicacion.js';
 import { PlataformaServicio } from '../servidor/servicios/plataformaServicio.js';
@@ -10,7 +13,12 @@ test('manejador HTTP: acceso, origen, validación, rutas explícitas y archivos 
     const repositorio = new RepositorioPrueba();
     const autenticacion = { sesion: async token => token === 'valida' ? aspirante : null, registrar: async datos => datos };
     const rutas = crearRutas({ autenticacion, plataforma: new PlataformaServicio(repositorio), repositorio, origen: 'http://localhost:3000' });
-    const aplicacion = crearAplicacion({ rutas, comprobarConexion: async () => {}, registrarError: () => {} });
+    // Interfaz compilada simulada: la prueba no depende de ejecutar `npm run build`.
+    const publico = await fs.mkdtemp(path.join(os.tmpdir(), 'becas-publico-'));
+    await fs.mkdir(path.join(publico, 'assets'));
+    await fs.writeFile(path.join(publico, 'index.html'), '<!doctype html><div id="raiz"></div>');
+    await fs.writeFile(path.join(publico, 'assets', 'app-123.js'), 'export {};');
+    const aplicacion = crearAplicacion({ rutas, comprobarConexion: async () => {}, registrarError: () => {}, publico });
     // Se inyectan streams HTTP para probar los manejadores sin abrir puertos.
     const peticion = async (ruta, opciones = {}) => {
         const entrada = new PassThrough();
@@ -40,4 +48,15 @@ test('manejador HTTP: acceso, origen, validación, rutas explícitas y archivos 
     }
     assert.equal((await peticion('/api/salud')).status, 200);
     assert.equal((await peticion('/')).status, 200);
+    // Rutas del enrutador del navegador y direcciones anteriores devuelven la aplicación.
+    for (const ruta of ['/panel/solicitudes/ana', '/dashboard.html']) {
+        const pagina = await peticion(ruta);
+        assert.equal(pagina.status, 200);
+        assert.match(String(pagina.contenido), /id="raiz"/);
+    }
+    const recurso = await peticion('/assets/app-123.js');
+    assert.equal(recurso.status, 200);
+    assert.match(recurso.cabeceras['Cache-Control'], /immutable/);
+    assert.equal((await peticion('/assets/no-existe.js')).status, 404);
+    await fs.rm(publico, { recursive: true, force: true });
 });
