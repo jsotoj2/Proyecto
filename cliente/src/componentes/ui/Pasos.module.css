@@ -1,0 +1,146 @@
+.pasos {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.horizontal {
+    grid-auto-columns: minmax(0, 1fr);
+    grid-auto-flow: column;
+    gap: 0;
+}
+
+.vertical {
+    gap: 0;
+}
+
+.paso {
+    position: relative;
+    display: flex;
+    gap: var(--espacio-3);
+}
+
+/* Cada paso centrado en su columna; la línea une el centro de un círculo con el del siguiente. */
+.horizontal .paso {
+    flex-direction: column;
+    align-items: center;
+    padding: var(--espacio-1) var(--espacio-2) 0;
+    text-align: center;
+}
+
+.horizontal .paso:not(:last-child)::after {
+    position: absolute;
+    top: calc(var(--espacio-1) + 17px);
+    left: calc(50% + 26px);
+    width: calc(100% - 52px);
+    height: 2px;
+    background: var(--gris-200);
+    content: '';
+}
+
+.horizontal .completo:not(:last-child)::after {
+    background: var(--primario-500);
+}
+
+.vertical .paso {
+    padding-bottom: var(--espacio-6);
+}
+
+.vertical .paso:not(:last-child)::after {
+    position: absolute;
+    top: 38px;
+    bottom: 4px;
+    left: 17px;
+    width: 2px;
+    background: var(--gris-200);
+    content: '';
+}
+
+.vertical .completo:not(:last-child)::after {
+    background: var(--primario-500);
+}
+
+.marca {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border: 2px solid var(--gris-300);
+    border-radius: 50%;
+    background: var(--superficie);
+    color: var(--texto-suave);
+    font-size: var(--texto-sm);
+    font-weight: 700;
+}
+
+.completo .marca {
+    border-color: var(--primario-600);
+    background: var(--primario-600);
+    color: var(--blanco);
+}
+
+.actual .marca {
+    border-color: var(--primario-600);
+    background: var(--superficie);
+    color: var(--primario-700);
+}
+
+.error .marca {
+    border-color: var(--error-500);
+    background: var(--error-100);
+    color: var(--error-700);
+}
+
+.texto {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+    padding-top: 6px;
+}
+
+.horizontal .texto {
+    justify-items: center;
+}
+
+.texto strong {
+    font-size: var(--texto-sm);
+}
+
+.texto span {
+    color: var(--texto-suave);
+    font-size: var(--texto-xs);
+}
+
+.pendiente .texto strong {
+    color: var(--texto-suave);
+}
+
+@media (max-width: 640px) {
+    .horizontal {
+        grid-auto-flow: row;
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .horizontal .paso {
+        flex-direction: row;
+        align-items: flex-start;
+        padding: 0 0 var(--espacio-5);
+        text-align: left;
+    }
+
+    .horizontal .texto {
+        justify-items: start;
+    }
+
+    .horizontal .paso:not(:last-child)::after {
+        top: 38px;
+        bottom: 4px;
+        left: 17px;
+        width: 2px;
+        height: auto;
+    }
+}

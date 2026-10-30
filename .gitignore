@@ -2,8 +2,22 @@
 .env
 .env.*
 !.env.example
+!.env.pruebas.example
 **/certificados/
 *.key
 
 # Dependencias instaladas
 node_modules/
+
+# Archivos generados y resultados locales
+.npm-cache/
+administrador.local.sql
+resultados-pruebas/
+__pycache__/
+*.log
+
+# Interfaz compilada por Vite
+cliente/dist/
+
+# Correos de notificación guardados en desarrollo
+correos-locales/

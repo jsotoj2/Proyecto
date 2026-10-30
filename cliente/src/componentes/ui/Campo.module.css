@@ -1,0 +1,135 @@
+.rejilla {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--espacio-4) var(--espacio-5);
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espacio-2);
+    min-width: 0;
+}
+
+.completo {
+    grid-column: 1 / -1;
+}
+
+.etiqueta {
+    color: var(--gris-700);
+    font-size: var(--texto-sm);
+    font-weight: 600;
+}
+
+.opcional {
+    color: var(--texto-suave);
+    font-weight: 400;
+}
+
+.control {
+    width: 100%;
+    min-height: 44px;
+    padding: var(--espacio-2) var(--espacio-3);
+    border: 1px solid var(--borde-fuerte);
+    border-radius: var(--radio-md);
+    background: var(--superficie);
+    font-size: var(--texto-sm);
+    transition: border-color var(--transicion), box-shadow var(--transicion);
+}
+
+textarea.control {
+    min-height: 120px;
+    resize: vertical;
+    line-height: 1.5;
+}
+
+.control::placeholder {
+    color: var(--gris-400);
+}
+
+.control:hover:not(:disabled) {
+    border-color: var(--gris-400);
+}
+
+.control:focus {
+    outline: none;
+    border-color: var(--primario-500);
+    box-shadow: var(--foco);
+}
+
+.control:disabled,
+.control:read-only {
+    background: var(--gris-50);
+    color: var(--gris-700);
+}
+
+.control[aria-invalid='true'] {
+    border-color: var(--error-500);
+}
+
+.ayuda {
+    color: var(--texto-suave);
+    font-size: var(--texto-xs);
+}
+
+.error {
+    color: var(--error-700);
+    font-size: var(--texto-xs);
+    font-weight: 500;
+}
+
+.contrasena {
+    position: relative;
+}
+
+.contrasena .control {
+    padding-right: 48px;
+}
+
+.mostrar {
+    position: absolute;
+    top: 50%;
+    right: 6px;
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: var(--radio-sm);
+    background: transparent;
+    color: var(--texto-suave);
+    transform: translateY(-50%);
+}
+
+.mostrar:hover {
+    background: var(--gris-100);
+    color: var(--gris-900);
+}
+
+@media (max-width: 640px) {
+    .rejilla {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.conIcono {
+    position: relative;
+}
+
+.icono {
+    position: absolute;
+    top: 50%;
+    left: 13px;
+    z-index: 1;
+    color: var(--gris-400);
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.conIcono .control {
+    padding-left: 42px;
+}
+
+.conIcono:focus-within .icono {
+    color: var(--primario-600);
+}

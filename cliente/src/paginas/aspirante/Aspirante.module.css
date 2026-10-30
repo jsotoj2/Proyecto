@@ -1,0 +1,517 @@
+/* Inicio */
+.siguiente {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--espacio-4);
+    padding: var(--espacio-5) var(--espacio-6);
+    border: 1px solid var(--borde);
+    border-left: 4px solid var(--primario-600);
+    border-radius: var(--radio-lg);
+    background: var(--superficie);
+}
+
+.siguiente h2 {
+    margin-top: 2px;
+    font-size: var(--texto-lg);
+}
+
+.siguiente p {
+    margin-top: var(--espacio-1);
+    color: var(--texto-suave);
+    font-size: var(--texto-sm);
+}
+
+.etiquetaSiguiente {
+    color: var(--texto-suave);
+    font-size: var(--texto-sm);
+}
+
+.accesos {
+    display: grid;
+    gap: var(--espacio-1);
+}
+
+.acceso {
+    display: flex;
+    align-items: center;
+    gap: var(--espacio-3);
+    padding: var(--espacio-3);
+    border-radius: var(--radio-md);
+    color: inherit;
+    text-decoration: none;
+    transition: background var(--transicion);
+}
+
+.acceso:hover {
+    background: var(--primario-50);
+}
+
+.acceso > span:nth-child(2) {
+    display: grid;
+    flex: 1;
+}
+
+.acceso strong {
+    font-size: var(--texto-sm);
+}
+
+.acceso small {
+    color: var(--texto-suave);
+    font-size: var(--texto-xs);
+}
+
+.acceso > svg {
+    color: var(--gris-400);
+}
+
+.iconoAcceso {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radio-md);
+    background: var(--primario-50);
+    color: var(--primario-600);
+}
+
+.lista {
+    display: grid;
+    gap: var(--espacio-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: var(--texto-sm);
+}
+
+.lista li {
+    position: relative;
+    padding-left: var(--espacio-6);
+}
+
+.lista li::before {
+    position: absolute;
+    top: 9px;
+    left: 6px;
+    width: 5px;
+    height: 5px;
+    background: var(--primario-600);
+    content: '';
+}
+
+/* Catálogo de becas */
+.catalogo {
+    display: grid;
+    grid-template-columns: minmax(260px, 0.8fr) minmax(0, 1.4fr);
+    gap: var(--espacio-6);
+    align-items: start;
+}
+
+.listaBecas {
+    display: grid;
+    gap: var(--espacio-3);
+}
+
+.opcionBeca {
+    display: grid;
+    gap: var(--espacio-1);
+    width: 100%;
+    padding: var(--espacio-4);
+    border: 1px solid var(--borde);
+    border-radius: var(--radio-lg);
+    background: var(--superficie);
+    text-align: left;
+    transition: border-color var(--transicion), box-shadow var(--transicion);
+}
+
+.opcionBeca:hover {
+    border-color: var(--primario-200);
+}
+
+.opcionBeca[aria-pressed='true'] {
+    border-color: var(--primario-500);
+    box-shadow: inset 4px 0 0 var(--primario-600);
+    background: var(--primario-50);
+}
+
+.opcionBeca strong {
+    font-size: var(--texto-sm);
+}
+
+.opcionBeca small {
+    color: var(--texto-suave);
+    font-size: var(--texto-xs);
+}
+
+.detalleBeca {
+    position: sticky;
+    top: calc(var(--alto-barra-superior) + var(--espacio-6));
+}
+
+.descripcion {
+    color: var(--gris-700);
+    white-space: pre-line;
+}
+
+.requisitos {
+    display: grid;
+    gap: var(--espacio-2);
+    margin: var(--espacio-3) 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.requisitos li {
+    display: flex;
+    gap: var(--espacio-2);
+    font-size: var(--texto-sm);
+}
+
+.requisitos svg {
+    flex: none;
+    margin-top: 3px;
+    color: var(--exito-500);
+}
+
+/* Formulario por pasos */
+.formulario {
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    gap: var(--espacio-6);
+    align-items: start;
+}
+
+.indicePasos {
+    position: sticky;
+    top: calc(var(--alto-barra-superior) + var(--espacio-6));
+}
+
+.fieldset {
+    display: grid;
+    gap: var(--espacio-5);
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.fieldset legend {
+    padding: 0;
+    margin-bottom: var(--espacio-1);
+    font-size: var(--texto-lg);
+    font-weight: 650;
+}
+
+.navegacionPasos {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--espacio-3);
+    padding-top: var(--espacio-5);
+    border-top: 1px solid var(--borde);
+}
+
+.contador {
+    justify-self: end;
+    margin-top: calc(-1 * var(--espacio-3));
+    color: var(--texto-suave);
+    font-size: var(--texto-xs);
+}
+
+.zonaArchivo {
+    display: grid;
+    justify-items: center;
+    gap: var(--espacio-2);
+    padding: var(--espacio-6);
+    border: 2px dashed var(--borde-fuerte);
+    border-radius: var(--radio-lg);
+    background: var(--gris-50);
+    color: var(--texto-suave);
+    font-size: var(--texto-sm);
+    text-align: center;
+    cursor: pointer;
+    transition: border-color var(--transicion), background var(--transicion);
+}
+
+.zonaArchivo:hover,
+.zonaArchivo.arrastrando {
+    border-color: var(--primario-500);
+    background: var(--primario-50);
+}
+
+.zonaArchivo:focus-within {
+    box-shadow: var(--foco);
+}
+
+.zonaArchivo strong {
+    color: var(--primario-700);
+}
+
+.archivoElegido {
+    display: flex;
+    align-items: center;
+    gap: var(--espacio-3);
+    padding: var(--espacio-3) var(--espacio-4);
+    border: 1px solid var(--borde);
+    border-radius: var(--radio-md);
+    font-size: var(--texto-sm);
+}
+
+.archivoElegido span {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.declaracion {
+    display: flex;
+    gap: var(--espacio-3);
+    padding: var(--espacio-4);
+    border: 1px solid var(--primario-200);
+    border-radius: var(--radio-md);
+    background: var(--primario-50);
+    font-size: var(--texto-sm);
+    cursor: pointer;
+}
+
+.declaracion input {
+    flex: none;
+    width: 20px;
+    height: 20px;
+    margin-top: 2px;
+    accent-color: var(--primario-700);
+}
+
+.progresoCompacto {
+    display: none;
+    gap: var(--espacio-2);
+}
+
+.progresoCompacto span {
+    color: var(--texto-suave);
+    font-size: var(--texto-xs);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.pistaProgreso {
+    height: 6px;
+    overflow: hidden;
+    border-radius: var(--radio-completo);
+    background: var(--gris-100);
+}
+
+.pistaProgreso i {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--primario-600);
+    transition: width 300ms ease;
+}
+
+.errorDeclaracion {
+    margin-top: calc(-1 * var(--espacio-3));
+    color: var(--error-700);
+    font-size: var(--texto-xs);
+    font-weight: 500;
+}
+
+/* Mi solicitud */
+.horarios {
+    display: grid;
+    gap: var(--espacio-5);
+}
+
+.dia h3 {
+    margin-bottom: var(--espacio-3);
+    color: var(--gris-700);
+    font-size: var(--texto-sm);
+}
+
+.opcionesHorario {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: var(--espacio-3);
+}
+
+.horario {
+    position: relative;
+    display: grid;
+    gap: 2px;
+    padding: var(--espacio-3) var(--espacio-4);
+    border: 1px solid var(--borde-fuerte);
+    border-radius: var(--radio-md);
+    background: var(--superficie);
+    cursor: pointer;
+    transition: border-color var(--transicion), background var(--transicion);
+}
+
+.horario input {
+    position: absolute;
+    opacity: 0;
+}
+
+.horario strong {
+    font-size: var(--texto-md);
+}
+
+.horario span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--texto-suave);
+    font-size: var(--texto-xs);
+}
+
+.horario:hover {
+    border-color: var(--primario-500);
+}
+
+.horario:has(input:checked) {
+    border-color: var(--primario-600);
+    background: var(--primario-50);
+    box-shadow: inset 0 0 0 1px var(--primario-600);
+}
+
+.horario:has(input:focus-visible) {
+    box-shadow: var(--foco);
+}
+
+.cita {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--espacio-5);
+    padding: var(--espacio-5);
+    border-radius: var(--radio-lg);
+    background: var(--primario-50);
+}
+
+.calendario {
+    display: grid;
+    place-items: center;
+    width: 72px;
+    height: 76px;
+    overflow: hidden;
+    border-radius: var(--radio-md);
+    background: var(--superficie);
+    box-shadow: var(--sombra-sm);
+    text-align: center;
+}
+
+.calendario span {
+    width: 100%;
+    padding: 2px 0;
+    background: var(--primario-700);
+    color: var(--blanco);
+    font-size: var(--texto-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.calendario strong {
+    font-size: var(--texto-2xl);
+    line-height: 1;
+}
+
+.resultado {
+    display: grid;
+    justify-items: center;
+    gap: var(--espacio-3);
+    padding: var(--espacio-6) var(--espacio-4);
+    text-align: center;
+}
+
+.resultado p {
+    max-width: 52ch;
+    color: var(--texto-suave);
+}
+
+.iconoResultado {
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+}
+
+.iconoResultado.exito { background: var(--exito-100); color: var(--exito-700); }
+.iconoResultado.error { background: var(--error-100); color: var(--error-700); }
+.iconoResultado.espera { background: var(--primario-100); color: var(--primario-700); }
+
+.bloqueada {
+    display: flex;
+    align-items: center;
+    gap: var(--espacio-3);
+    color: var(--texto-suave);
+    font-size: var(--texto-sm);
+}
+
+/* Notificaciones */
+.notificaciones {
+    display: grid;
+    gap: var(--espacio-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.notificacion {
+    display: flex;
+    gap: var(--espacio-4);
+    padding: var(--espacio-4) var(--espacio-5);
+    border: 1px solid var(--borde);
+    border-radius: var(--radio-lg);
+    background: var(--superficie);
+}
+
+.notificacion.nueva {
+    border-color: var(--primario-200);
+    background: var(--primario-50);
+}
+
+.notificacion time {
+    display: block;
+    margin-top: var(--espacio-1);
+    color: var(--texto-suave);
+    font-size: var(--texto-xs);
+}
+
+.iconoNotificacion {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--gris-100);
+    color: var(--gris-500);
+}
+
+.nueva .iconoNotificacion {
+    background: var(--primario-700);
+    color: var(--blanco);
+}
+
+@media (max-width: 1080px) {
+    .catalogo,
+    .formulario {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .detalleBeca {
+        position: static;
+    }
+
+    .indicePasos {
+        display: none;
+    }
+
+    .progresoCompacto {
+        display: grid;
+    }
+}
+

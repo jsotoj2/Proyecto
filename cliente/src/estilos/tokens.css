@@ -1,0 +1,85 @@
+/* Tokens de diseño: toda la interfaz y los componentes toman sus valores de aquí. */
+:root {
+    /* Marca: azul marino institucional, colores planos */
+    --primario-900: #0b1e3a;
+    --primario-800: #12294d;
+    --primario-700: #1b3a66;
+    --primario-600: #24497d;
+    --primario-500: #3a6299;
+    --primario-200: #c5d2e4;
+    --primario-100: #e4eaf3;
+    --primario-50: #f3f6fa;
+
+    /* Acento sobrio, solo para indicadores puntuales (contadores, paso actual) */
+    --acento-700: #7a5a14;
+    --acento-500: #b08a2e;
+    --acento-100: #f5efe0;
+
+    /* Neutros */
+    --gris-900: #1b2430;
+    --gris-700: #3d4754;
+    --gris-500: #646e7b;
+    --gris-400: #8b939e;
+    --gris-300: #c8cdd4;
+    --gris-200: #dfe3e8;
+    --gris-100: #eef0f3;
+    --gris-50: #f6f7f9;
+    --blanco: #ffffff;
+
+    /* Estados */
+    --exito-700: #1d5e3b;
+    --exito-500: #2e7d4f;
+    --exito-100: #e6f2ea;
+    --error-700: #8f2323;
+    --error-500: #b42f2f;
+    --error-100: #f8e8e8;
+    --advertencia-700: #7a5310;
+    --advertencia-500: #a8731a;
+    --advertencia-100: #fbf2e0;
+    --info-700: #1d4f86;
+    --info-500: #2b65a8;
+    --info-100: #e7eef8;
+
+    /* Semánticos */
+    --fondo: #f4f5f7;
+    --superficie: var(--blanco);
+    --superficie-suave: var(--gris-100);
+    --texto: var(--gris-900);
+    --texto-suave: var(--gris-500);
+    --borde: var(--gris-200);
+    --borde-fuerte: var(--gris-300);
+    --foco: 0 0 0 3px color-mix(in srgb, var(--primario-500) 35%, transparent);
+
+    /* Tipografía */
+    --fuente: 'Source Sans 3 Variable', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --texto-xs: 0.8125rem;
+    --texto-sm: 0.9375rem;
+    --texto-md: 1rem;
+    --texto-lg: 1.125rem;
+    --texto-xl: 1.375rem;
+    --texto-2xl: 1.75rem;
+    --texto-3xl: 2.25rem;
+
+    /* Espaciado, radios y sombras: formas sobrias, casi rectas */
+    --espacio-1: 0.25rem;
+    --espacio-2: 0.5rem;
+    --espacio-3: 0.75rem;
+    --espacio-4: 1rem;
+    --espacio-5: 1.25rem;
+    --espacio-6: 1.5rem;
+    --espacio-8: 2rem;
+    --espacio-10: 2.5rem;
+    --radio-sm: 3px;
+    --radio-md: 4px;
+    --radio-lg: 6px;
+    --radio-xl: 8px;
+    --radio-completo: 999px;
+    --sombra-sm: 0 1px 2px rgba(27, 36, 48, 0.05);
+    --sombra-md: 0 2px 8px rgba(27, 36, 48, 0.08);
+    --sombra-lg: 0 8px 24px rgba(27, 36, 48, 0.14);
+    --velo: rgba(11, 30, 58, 0.55);
+
+    --ancho-barra: 256px;
+    --alto-barra-superior: 64px;
+    --transicion: 120ms ease;
+}

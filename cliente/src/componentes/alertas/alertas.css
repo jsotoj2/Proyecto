@@ -1,0 +1,134 @@
+/* Apariencia de los diálogos de SweetAlert2 con los tokens de la plataforma. */
+.swal2-container {
+    font-family: var(--fuente);
+}
+
+.swal2-container.swal2-backdrop-show {
+    background: var(--velo);
+}
+
+.alerta-popup {
+    width: min(460px, calc(100vw - 32px));
+    padding: var(--espacio-8) var(--espacio-6) var(--espacio-6);
+    border-radius: var(--radio-xl);
+    box-shadow: var(--sombra-lg);
+}
+
+.alerta-titulo {
+    padding: 0;
+    color: var(--gris-900);
+    font-size: var(--texto-xl);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.alerta-texto {
+    margin: var(--espacio-3) 0 0;
+    padding: 0;
+    color: var(--texto-suave);
+    font-size: var(--texto-md);
+    line-height: 1.55;
+}
+
+.alerta-icono {
+    margin-top: 0;
+    transform: scale(0.85);
+}
+
+.swal2-icon.swal2-success .swal2-success-ring { border-color: color-mix(in srgb, var(--exito-500) 30%, transparent); }
+.swal2-icon.swal2-success [class^='swal2-success-line'] { background-color: var(--exito-500); }
+.swal2-icon.swal2-error { border-color: var(--error-500); color: var(--error-500); }
+.swal2-icon.swal2-error [class^='swal2-x-mark-line'] { background-color: var(--error-500); }
+.swal2-icon.swal2-warning { border-color: var(--advertencia-500); color: var(--advertencia-500); }
+.swal2-icon.swal2-info,
+.swal2-icon.swal2-question { border-color: var(--primario-500); color: var(--primario-500); }
+
+.alerta-acciones {
+    gap: var(--espacio-3);
+    width: 100%;
+    margin-top: var(--espacio-6);
+}
+
+.alerta-boton {
+    min-height: 44px;
+    padding: 0 var(--espacio-5);
+    border: 1px solid transparent;
+    border-radius: var(--radio-md);
+    font-weight: 600;
+    font-size: var(--texto-sm);
+    transition: background var(--transicion), border-color var(--transicion);
+}
+
+.alerta-boton:focus-visible {
+    outline: none;
+    box-shadow: var(--foco);
+}
+
+.alerta-boton--primario {
+    background: var(--primario-700);
+    color: var(--blanco);
+}
+
+.alerta-boton--primario:hover {
+    background: var(--primario-800);
+}
+
+.alerta-boton--peligro {
+    background: var(--error-500);
+    color: var(--blanco);
+}
+
+.alerta-boton--peligro:hover {
+    background: var(--error-700);
+}
+
+.alerta-boton--secundario {
+    background: var(--superficie);
+    border-color: var(--borde-fuerte);
+    color: var(--gris-700);
+}
+
+.alerta-boton--secundario:hover {
+    background: var(--gris-100);
+}
+
+.alerta-entrada {
+    width: auto;
+    min-height: 110px;
+    margin: var(--espacio-3) 0 0;
+    border: 1px solid var(--borde-fuerte);
+    border-radius: var(--radio-md);
+    font-size: var(--texto-sm);
+    box-shadow: none;
+}
+
+.alerta-entrada:focus {
+    border-color: var(--primario-500);
+    box-shadow: var(--foco);
+}
+
+.swal2-input-label {
+    justify-content: flex-start;
+    margin: var(--espacio-5) 0 0;
+    color: var(--gris-700);
+    font-size: var(--texto-sm);
+    font-weight: 600;
+}
+
+.alerta-validacion {
+    margin: var(--espacio-3) 0 0;
+    border-radius: var(--radio-md);
+    background: var(--error-100);
+    color: var(--error-700);
+    font-size: var(--texto-sm);
+}
+
+.alerta-toast {
+    border-radius: var(--radio-lg) !important;
+    box-shadow: var(--sombra-lg) !important;
+    font-size: var(--texto-sm);
+}
+
+.swal2-timer-progress-bar {
+    background: var(--primario-200);
+}
