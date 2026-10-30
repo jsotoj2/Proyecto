@@ -11,6 +11,7 @@ export const operaciones = Object.freeze({
     'POST /reservas': 'reservar',
     'POST /entrevistas/completar': 'entrevista',
     'POST /resultados': 'fase4',
+    'POST /aprobaciones': 'segunda-aprobacion',
     'PATCH /cupos': 'cupos',
     'POST /usuarios': 'crear-usuario',
     'PATCH /usuarios/estado': 'activar-usuario',
@@ -60,7 +61,8 @@ export function crearRutas({ autenticacion, plataforma, repositorio, origen, coo
             await autenticacion.salir(obtenerToken(peticion));
             establecerCookie(respuesta, '', cookieSegura);
             resultado = { ok: true };
-        } else if (['PATCH', 'POST'].includes(metodo) && ruta === '/cuenta') resultado = { usuario: await autenticacion.cuenta(actor, await leerJson(peticion)) };
+        } else if (metodo === 'PATCH' && ruta === '/notificaciones/leidas') resultado = await plataforma.leerNotificaciones(actor);
+        else if (['PATCH', 'POST'].includes(metodo) && ruta === '/cuenta') resultado = { usuario: await autenticacion.cuenta(actor, await leerJson(peticion)) };
         else if (operaciones[`${metodo} ${ruta}`]) {
             const datos = await leerJson(peticion);
             resultado = await plataforma.accion(actor, { ...datos, tipo: operaciones[`${metodo} ${ruta}`] });
@@ -68,12 +70,8 @@ export function crearRutas({ autenticacion, plataforma, repositorio, origen, coo
             // Compatibilidad temporal para clientes anteriores, con las mismas validaciones.
             respuesta.setHeader('Deprecation', 'true');
             resultado = await plataforma.accion(actor, await leerJson(peticion));
-        } else if (metodo === 'GET' && ruta === '/previas') resultado = await repositorio.previas(actor);
-        else if (metodo === 'GET' && ruta === '/documentos') resultado = await repositorio.documentos(actor);
-        else if (metodo === 'GET' && ruta.startsWith('/pdf-previo/')) {
-            responderArchivo(respuesta, await repositorio.documentoPrevio(actor, decodeURIComponent(ruta.slice(12))));
-            return true;
-        } else if (/^\/pdf\/[1-9]\d*$/.test(ruta)) {
+        } else if (metodo === 'GET' && ruta === '/documentos') resultado = await repositorio.documentos(actor);
+        else if (/^\/pdf\/[1-9]\d*$/.test(ruta)) {
             const id = Number(ruta.slice(5));
             if (!Number.isSafeInteger(id)) errorUsuario('Identificador de documento no válido.');
             if (metodo === 'GET') {

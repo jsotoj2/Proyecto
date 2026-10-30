@@ -8,28 +8,38 @@
 4. Ejecuta `npm run probar-db` y después `npm run migrar`.
 5. Crea el administrador si falta y arranca únicamente la versión nueva.
 
-No se ha conectado esta entrega a la base del usuario: el proyecto facilitado no contenía un `.env` con credenciales. Las migraciones no se ejecutaron sobre una base real durante esta sesión.
+El esquema está descrito en [BASE-DE-DATOS.md](BASE-DE-DATOS.md).
 
 ## Orden de aplicación
 
 | Paso | Efecto |
 | --- | --- |
-| `000-crear-base.sql` | Creación opcional de `becas_app`, ejecutada manualmente |
-| `001-historico.sql` | Tablas de solicitudes históricas, sin borrar datos |
-| `002-usuarios.sql` | Usuarios, sesiones, documentos y tabla de estado anterior |
-| `003-plataforma-relacional.sql` | Tablas por entidad y vista de administradores |
-| Traslado de datos | Copia el JSON anterior a las tablas nuevas en una transacción; conserva el original |
-| `004-integridad.sql` | Clave foránea de documentos e índices de sesiones y roles |
+| `000-crear-base.sql` | Creación opcional de `becas_db`, ejecutada manualmente |
+| `001-usuarios.sql` | Usuarios y sesiones |
+| `002-becas.sql` | Becas y requisitos |
+| `003-solicitudes.sql` | Solicitudes, horarios de entrevista y documentos |
+| `004-seguimiento.sql` | Notificaciones, correos salientes, bitácora y control de versión |
+| Catálogo inicial | Si la base no tiene becas, carga `catalogo-inicial.json` una sola vez |
+
+## Traslado desde el esquema anterior
+
+El esquema anterior (`usuarios_app`, `postulaciones`, `programas_beca`, `actividad_plataforma`…) sigue en la base `becas_app`. Para copiar sus datos a una base nueva con el esquema actual:
+
+```bash
+npm run trasladar -- becas_app
+```
+
+El destino es la base de `DB_NAME`, que debe estar vacía. El comando aplica las migraciones, copia usuarios (con sus contraseñas), becas, solicitudes, horarios, documentos, actividad, auditoría y notificaciones en una sola transacción, y muestra cuántos registros copió de cada tabla. La base de origen solo se lee. Las sesiones no se copian, así que cada usuario vuelve a iniciar sesión.
 
 El comando registra cada sentencia y su checksum en `migraciones`. Volver a ejecutarlo omite lo ya aplicado. Un bloqueo nombrado de MySQL impide dos migradores simultáneos. Las sentencias DDL confirman automáticamente en MySQL; por eso la migración completa no promete ser atómica. El traslado de datos sí usa commit/rollback.
 
-Si el estado anterior contiene referencias inexistentes —por ejemplo una solicitud de un usuario eliminado o un documento huérfano—, las claves foráneas provocan un error. Revisa esos registros en la copia de respaldo; no elimines restricciones para ocultar el problema. El servidor exige que se haya completado también la última migración.
+Los saltos de línea se normalizan antes de calcular el checksum, así que da igual si el proyecto se clonó en Windows (CRLF) o en macOS (LF).
 
-No ejecutes únicamente los archivos SQL sobre una base con datos anteriores: el traslado del JSON requiere `npm run migrar`. No arranques de nuevo la versión antigua tras una migración con nuevas escrituras, porque su JSON habrá quedado desactualizado.
+Si los datos de origen contienen referencias inexistentes o valores fuera de las restricciones (por ejemplo, un teléfono que no tiene 8 dígitos), el traslado se revierte completo y muestra el error. Corrige esos registros en el origen; no elimines restricciones para ocultar el problema. El servidor exige que se hayan completado todas las migraciones antes de arrancar.
 
 ## Permisos
 
-Usa cuentas separadas para migraciones y ejecución. La cuenta de ejecución necesita `SELECT`, `INSERT`, `UPDATE` y `DELETE` sobre las tablas de la aplicación. La cuenta de migración necesita además permisos para crear y alterar tablas, índices y vistas. Crear la base y conceder permisos corresponde a la cuenta de administración de MySQL o al panel del proveedor.
+Usa cuentas separadas para migraciones y ejecución. La cuenta de ejecución necesita `SELECT`, `INSERT`, `UPDATE` y `DELETE` sobre las tablas de la aplicación. La cuenta de migración necesita además permisos para crear y alterar tablas e índices. Crear la base y conceder permisos corresponde a la cuenta de administración de MySQL o al panel del proveedor.
 
 El asistente `crear-admin` crea una cuenta de la **aplicación**, no un usuario de MySQL. No uses las credenciales de MySQL para iniciar sesión en la interfaz.
 

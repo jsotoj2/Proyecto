@@ -33,7 +33,7 @@ test('MySQL real: migraciones repetibles, autenticación, persistencia y conflic
         ]);
         assert.equal(resultados.filter(r => r.status === 'fulfilled').length, 1);
         assert.equal(resultados.find(r => r.status === 'rejected').reason.estado, 409);
-        const [filas] = await conexion.execute('SELECT usuario FROM postulaciones');
+        const [filas] = await conexion.execute('SELECT u.usuario FROM solicitudes s JOIN usuarios u ON u.id=s.usuario_id');
         assert.equal(filas[0].usuario, actor.usuario);
         await autenticacion.salir(sesion.token);
         assert.equal(await autenticacion.sesion(sesion.token), null);

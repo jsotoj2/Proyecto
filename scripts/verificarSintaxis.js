@@ -12,5 +12,6 @@ async function revisar(directorio) {
         }
     }
 }
-for (const directorio of ['servidor', 'scripts', 'publico/js', 'pruebas']) await revisar(directorio);
+// El código del cliente (JSX) se verifica al compilar con `npm run build`.
+for (const directorio of ['servidor', 'scripts', 'pruebas']) await revisar(directorio);
 console.log('Sintaxis JavaScript correcta.');

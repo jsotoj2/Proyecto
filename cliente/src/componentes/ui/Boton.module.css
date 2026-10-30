@@ -1,0 +1,96 @@
+.boton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--espacio-2);
+    border: 1px solid transparent;
+    border-radius: var(--radio-md);
+    font-weight: 600;
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background var(--transicion), border-color var(--transicion), color var(--transicion), box-shadow var(--transicion);
+}
+
+.boton:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.sm { min-height: 34px; padding: 0 var(--espacio-3); font-size: var(--texto-xs); }
+.md { min-height: 42px; padding: 0 var(--espacio-4); font-size: var(--texto-sm); }
+.lg { min-height: 50px; padding: 0 var(--espacio-6); font-size: var(--texto-md); }
+
+.bloque {
+    width: 100%;
+}
+
+.primario {
+    background: var(--primario-700);
+    color: var(--blanco);
+}
+
+.primario:hover:not(:disabled) {
+    background: var(--primario-800);
+}
+
+.acento {
+    background: var(--blanco);
+    color: var(--primario-800);
+}
+
+.acento:hover:not(:disabled) {
+    background: var(--primario-100);
+}
+
+.secundario {
+    background: var(--superficie);
+    border-color: var(--borde-fuerte);
+    color: var(--gris-700);
+}
+
+.secundario:hover:not(:disabled) {
+    border-color: var(--primario-500);
+    color: var(--primario-700);
+}
+
+.fantasma {
+    background: transparent;
+    color: var(--primario-700);
+}
+
+.fantasma:hover:not(:disabled) {
+    background: var(--primario-50);
+}
+
+.exito {
+    background: var(--exito-500);
+    color: var(--blanco);
+}
+
+.exito:hover:not(:disabled) {
+    background: var(--exito-700);
+}
+
+.peligro {
+    background: var(--superficie);
+    border-color: color-mix(in srgb, var(--error-500) 45%, transparent);
+    color: var(--error-700);
+}
+
+.peligro:hover:not(:disabled) {
+    background: var(--error-100);
+}
+
+.giro {
+    width: 16px;
+    height: 16px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: girar 700ms linear infinite;
+}
+
+@keyframes girar {
+    to { transform: rotate(360deg); }
+}

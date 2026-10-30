@@ -15,3 +15,9 @@ administrador.local.sql
 resultados-pruebas/
 __pycache__/
 *.log
+
+# Interfaz compilada por Vite
+cliente/dist/
+
+# Correos de notificación guardados en desarrollo
+correos-locales/

@@ -1,0 +1,20 @@
+.programa {
+    display: grid;
+    gap: var(--espacio-4);
+    align-content: start;
+}
+
+.programa h3 {
+    font-size: var(--texto-md);
+}
+
+.cupos {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--espacio-3);
+    align-items: start;
+}
+
+.cupos button {
+    margin-top: 27px;
+}

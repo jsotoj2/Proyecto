@@ -1,0 +1,111 @@
+.detalles {
+    display: grid;
+    grid-template-columns: repeat(var(--columnas), minmax(0, 1fr));
+    gap: var(--espacio-4) var(--espacio-5);
+    margin: 0;
+}
+
+.detalles dt {
+    color: var(--texto-suave);
+    font-size: var(--texto-xs);
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.detalles dd {
+    margin: 2px 0 0;
+    font-weight: 550;
+    overflow-wrap: anywhere;
+    white-space: pre-line;
+}
+
+.completo {
+    grid-column: 1 / -1;
+}
+
+.indicador {
+    display: flex;
+    align-items: center;
+    gap: var(--espacio-4);
+    padding: var(--espacio-5);
+    border: 1px solid var(--borde);
+    border-radius: var(--radio-lg);
+    background: var(--superficie);
+    box-shadow: var(--sombra-sm);
+}
+
+.iconoIndicador {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    border-radius: var(--radio-md);
+}
+
+.etiquetaIndicador {
+    display: block;
+    color: var(--texto-suave);
+    font-size: var(--texto-sm);
+}
+
+.valorIndicador {
+    display: block;
+    font-size: var(--texto-2xl);
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+}
+
+.detalleIndicador {
+    color: var(--texto-suave);
+    font-size: var(--texto-xs);
+}
+
+.barra {
+    display: grid;
+    gap: var(--espacio-2);
+}
+
+.filaBarra {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--texto-sm);
+}
+
+.pista {
+    height: 10px;
+    overflow: hidden;
+    border-radius: var(--radio-completo);
+    background: var(--gris-100);
+}
+
+.relleno {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    transition: width 400ms ease;
+}
+
+.primario { background: var(--primario-100); color: var(--primario-700); }
+.acento { background: var(--acento-100); color: var(--acento-700); }
+.exito { background: var(--exito-100); color: var(--exito-700); }
+.error { background: var(--error-100); color: var(--error-700); }
+.info { background: var(--info-100); color: var(--info-700); }
+
+.relleno.primario { background: var(--primario-600); }
+.relleno.acento { background: var(--gris-400); }
+.relleno.exito { background: var(--exito-500); }
+.relleno.error { background: var(--error-500); }
+
+@media (max-width: 760px) {
+    .detalles {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 460px) {
+    .detalles {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}

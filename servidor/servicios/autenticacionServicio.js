@@ -17,12 +17,24 @@ export function validarPassword(password) {
     if (typeof password !== 'string' || password.length < 8 || Buffer.byteLength(password) > 256) errorUsuario('La contraseña debe tener al menos 8 caracteres y máximo 256 bytes.');
 }
 
+// Las mismas reglas usa la interfaz (cliente/src/utilidades/validaciones.js).
+export function validarNombre(valor) {
+    const nombre = texto(valor, 'Nombre', 160, 2);
+    if (!/^\p{L}+(?:[\s'’.-]+\p{L}+)*\.?$/u.test(nombre)) errorUsuario('El nombre solo admite letras y espacios, sin números ni símbolos.');
+    return nombre;
+}
+
+export function validarCorreo(valor) {
+    const correo = texto(valor, 'Correo', 254).toLowerCase();
+    if (!/^[a-z0-9._%+-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,}$/.test(correo)) errorUsuario('Ingresa un correo válido.');
+    return correo;
+}
+
 export function validarCuenta(datos, rol = 'aspirante', requiereDpi = true) {
     const usuario = texto(datos.usuario, 'Usuario', 40, 3).toLowerCase();
     if (!/^[a-z0-9_.-]+$/.test(usuario)) errorUsuario('El usuario admite letras, números, punto, guion y guion bajo.');
-    const nombre = texto(datos.nombre, 'Nombre', 160, 2);
-    const correo = texto(datos.correo, 'Correo', 254).toLowerCase();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) errorUsuario('Ingresa un correo válido.');
+    const nombre = validarNombre(datos.nombre);
+    const correo = validarCorreo(datos.correo);
     const dpi = datos.dpi ? texto(datos.dpi, 'DPI', 13) : null;
     if ((requiereDpi && !dpi) || (dpi && !/^\d{13}$/.test(dpi))) errorUsuario('El DPI debe contener 13 dígitos.');
     validarPassword(datos.password);
@@ -79,9 +91,8 @@ export class AutenticacionServicio {
     async salir(token) { if (token) await this.repositorio.borrarSesion(hashToken(token)); }
 
     async cuenta(actor, datos) {
-        const nombre = texto(datos.nombre, 'Nombre', 160, 2);
-        const correo = texto(datos.correo, 'Correo', 254).toLowerCase();
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) errorUsuario('Ingresa un correo válido.');
+        const nombre = validarNombre(datos.nombre);
+        const correo = validarCorreo(datos.correo);
         let hash = null;
         if (datos.password) { validarPassword(datos.password); hash = await hashPassword(datos.password); }
         await this.repositorio.actualizarUsuario(actor.id, { nombre, correo, password_hash: hash });
