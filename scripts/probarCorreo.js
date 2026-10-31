@@ -2,8 +2,8 @@
  * Comprueba la configuración de correo del .env y envía un mensaje de prueba.
  * Uso: npm run probar-correo -- destinatario@correo.com
  */
-import { transporteCorreo } from '../servidor/configuracion/correo.js';
-import { plantilla } from '../servidor/correo/plantillas.js';
+import { transporteCorreo } from '../servidor/infraestructura/configuracion/correo.js';
+import { plantilla } from '../servidor/infraestructura/correo/plantillas.js';
 
 const destinatario = process.argv[2];
 if (!destinatario || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(destinatario)) {

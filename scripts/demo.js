@@ -1,3 +1,4 @@
+import { DocumentosServicio } from '../servidor/aplicacion/documentosServicio.js';
 /*
  * Modo demostración: la API real con datos en memoria y la interfaz compilada, sin MySQL ni archivo .env.
  * Recupera las cuentas del demo original (contraseña 123) y agrega solicitudes en distintas etapas
@@ -7,12 +8,13 @@ import http from 'node:http';
 import fs from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { RepositorioPrueba } from '../pruebas/soporte.js';
-import { AutenticacionServicio, hashPassword } from '../servidor/servicios/autenticacionServicio.js';
-import { PlataformaServicio } from '../servidor/servicios/plataformaServicio.js';
-import { crearRutas } from '../servidor/api/rutas.js';
-import { crearAplicacion } from '../servidor/api/aplicacion.js';
-import { crearTransporteArchivo } from '../servidor/correo/transportes.js';
-import { crearDespachador } from '../servidor/correo/despachador.js';
+import { AutenticacionServicio } from '../servidor/aplicacion/autenticacionServicio.js';
+import { hashPassword } from '../servidor/infraestructura/seguridad.js';
+import { PlataformaServicio } from '../servidor/aplicacion/plataformaServicio.js';
+import { crearRutas } from '../servidor/presentacion/rutas.js';
+import { crearAplicacion } from '../servidor/presentacion/aplicacion.js';
+import { crearTransporteArchivo } from '../servidor/infraestructura/correo/transportes.js';
+import { crearDespachador } from '../servidor/infraestructura/correo/despachador.js';
 
 const PUERTO = 4173;
 const ORIGEN = `http://localhost:${PUERTO}`;
@@ -89,7 +91,7 @@ const CARPETA_CORREOS = new URL('../correos-locales/demo/', import.meta.url);
 const despachador = crearDespachador({ repositorio, transporte: crearTransporteArchivo(fileURLToPath(CARPETA_CORREOS)), intervaloMs: 5000 });
 despachador.iniciar();
 const plataforma = new PlataformaServicio(repositorio, { urlPanel: ORIGEN, alEncolarCorreos: () => despachador.procesar() });
-const rutas = crearRutas({ autenticacion: new AutenticacionServicio(repositorio), plataforma, repositorio, origen: ORIGEN });
+const rutas = crearRutas({ autenticacion: new AutenticacionServicio(repositorio), plataforma, documentos: new DocumentosServicio(repositorio), origen: ORIGEN });
 http.createServer(crearAplicacion({ rutas, comprobarConexion: async () => {} }))
     .listen(PUERTO, '127.0.0.1', () => {
         console.log(`\nDemo de Becas Nacionales en ${ORIGEN}  (datos en memoria, sin MySQL)\n`);

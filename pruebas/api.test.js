@@ -1,18 +1,19 @@
+import { DocumentosServicio } from '../servidor/aplicacion/documentosServicio.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { PassThrough } from 'node:stream';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { crearRutas } from '../servidor/api/rutas.js';
-import { crearAplicacion } from '../servidor/api/aplicacion.js';
-import { PlataformaServicio } from '../servidor/servicios/plataformaServicio.js';
+import { crearRutas } from '../servidor/presentacion/rutas.js';
+import { crearAplicacion } from '../servidor/presentacion/aplicacion.js';
+import { PlataformaServicio } from '../servidor/aplicacion/plataformaServicio.js';
 import { RepositorioPrueba, aspirante, formulario } from './soporte.js';
 
 test('manejador HTTP: acceso, origen, validación, rutas explícitas y archivos privados', async () => {
     const repositorio = new RepositorioPrueba();
     const autenticacion = { sesion: async token => token === 'valida' ? aspirante : null, registrar: async datos => datos };
-    const rutas = crearRutas({ autenticacion, plataforma: new PlataformaServicio(repositorio), repositorio, origen: 'http://localhost:3000' });
+    const rutas = crearRutas({ autenticacion, plataforma: new PlataformaServicio(repositorio), documentos: new DocumentosServicio(repositorio), origen: 'http://localhost:3000' });
     // Interfaz compilada simulada: la prueba no depende de ejecutar `npm run build`.
     const publico = await fs.mkdtemp(path.join(os.tmpdir(), 'becas-publico-'));
     await fs.mkdir(path.join(publico, 'assets'));

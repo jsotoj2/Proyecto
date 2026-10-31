@@ -1,59 +1,124 @@
-# Arquitectura del proyecto
+# Arquitectura por capas de la plataforma de becas
 
-El navegador consume la API del mismo servidor. Las rutas traducen HTTP a operaciones de negocio; los servicios validan permisos y transiciones; los repositorios ejecutan SQL parametrizado sobre un pool MySQL. Ningún archivo de configuración se publica por HTTP.
+La aplicación es un **monolito con cuatro capas lógicas**: presentación, aplicación, negocio y datos. React corre en el navegador; un proceso Node.js publica la API y la interfaz compilada; MySQL conserva la información. Una capa es una responsabilidad del código, no un servidor independiente.
 
-```text
-cliente/ → servidor/api/ → servidor/servicios/ → servidor/repositorios/ → MySQL
-                                  ↑                       ↑
-                           validaciones             configuracion/
+## Esquema
+
+![Esquema de las cuatro capas](ESQUEMA-ARQUITECTURA.png)
+
+```mermaid
+flowchart TD
+    U[Usuario] --> P[1. Presentación: React y API HTTP]
+    P --> A[2. Aplicación: coordina casos de uso]
+    A --> N[3. Negocio: reglas y validaciones]
+    A --> D[4. Datos: repositorios y transacciones]
+    D --> DB[(MySQL)]
+    A -. apoyo técnico .-> I[Infraestructura: seguridad y correo]
 ```
 
-## Responsabilidades
+Las flechas representan llamadas. Aplicación consulta datos, ejecuta reglas y solicita guardar el resultado. Negocio recibe objetos JavaScript y no llama a MySQL. No es una cadena rígida que deba atravesar cuatro carpetas consecutivas. Las respuestas vuelven a través de aplicación y presentación.
 
-| Carpeta | Responsabilidad |
-| --- | --- |
-| `cliente/` | Interfaz React con Vite: rutas por rol, componentes, alertas, cliente HTTP y constancia PDF. `npm run build` genera `cliente/dist/`, que publica el servidor |
-| `servidor/api/` | Rutas, cuerpos de petición, respuestas y errores HTTP |
-| `servidor/configuracion/` | Validación de variables y creación del pool |
-| `servidor/servicios/` | Autenticación, permisos y proceso de postulación |
-| `servidor/repositorios/` | Persistencia SQL, sesiones y transacciones |
-| `base-datos/` | Migraciones ordenadas y catálogo inicial |
-| `scripts/` | Migrar, verificar conexión, crear administrador y revisar sintaxis |
-| `pruebas/` | Pruebas de negocio, API, repositorios, cliente e integración |
-| `legado/` | Archivos anteriores conservados como referencia; no se ejecutan ni se publican |
+## Distribución de carpetas
 
-## Interfaz
+```text
+cliente/src/                         PRESENTACIÓN EN EL NAVEGADOR
+  paginas/                          Pantallas por rol
+  componentes/                      Elementos reutilizables
+  api/                              Cliente HTTP y caché del panel
+servidor/
+  presentacion/                     1. PRESENTACIÓN HTTP
+    rutas.js                        Traduce URL, método y cuerpo a una operación
+    http.js                         JSON, cookies y respuestas de archivos
+    aplicacion.js                   Publica cliente/dist y traduce errores HTTP
+  aplicacion/                       2. APLICACIÓN
+    plataformaServicio.js           Coordina lectura, reglas, guardado y seguimiento
+    autenticacionServicio.js        Coordina registro, login y sesiones
+    usuariosServicio.js             Coordina creación y activación de cuentas
+    documentosServicio.js           Coordina consulta y carga de documentos
+  negocio/                          3. NEGOCIO
+    solicitudesReglas.js            Formulario, revisión, reservas y aprobaciones
+    becasReglas.js                   Creación de becas, cupos y validación de comités
+    entrevistasReglas.js            Publicación de horarios y entrevistas
+    documentosReglas.js             Propiedad, edición y formato de documentos
+    cuentas.js                      Validación de cuentas y datos públicos
+    validaciones.js                 Roles, números, fechas y búsquedas del modelo
+  datos/                            4. ACCESO A DATOS
+    plataformaRepositorio.js        Modelo relacional, documentos y seguimiento
+    usuariosRepositorio.js          Usuarios, sesiones y ciclo de transacciones
+    comiteRepositorio.js            Consulta y asignación de comités
+  infraestructura/                  SOPORTE TÉCNICO
+    configuracion/                  Variables, pool MySQL, certificados y SMTP
+    correo/                         Plantillas, transportes y despachador
+    seguridad.js                    Hashes de contraseñas y tokens
+  compartido/                       Error esperado entre capas
+  iniciar.js                        Conecta las implementaciones e inicia el servidor
+base-datos/                         Migraciones SQL y catálogo inicial
+scripts/                            Operación, migración y demostración
+pruebas/                            Pruebas automáticas
+legado/                             Referencia histórica, fuera de ejecución activa
+```
 
-- **Rutas por rol.** React Router define `/acceso`, `/registro` y `/panel/...`. Las protecciones de `cliente/src/rutas/` solo ordenan la navegación: cada permiso se vuelve a comprobar en el servidor. El servidor devuelve `index.html` para cualquier ruta sin extensión, así que los enlaces directos funcionan.
-- **Estado.** `api/almacenEstado.js` guarda la respuesta de `GET /estado`, reutiliza lecturas de menos de 15 segundos y envía la `version` en cada escritura; ante un 409 recarga el estado. React escapa el contenido al mostrarlo, por lo que el cliente ya no transforma los textos.
-- **Alertas.** `componentes/alertas/alertas.js` centraliza las confirmaciones, los éxitos, los errores y los comentarios obligatorios con SweetAlert2. `<Alerta>` muestra los mensajes dentro de la página.
-- **Formulario y constancia.** El aspirante completa en línea todos los datos que antes pedía el PDF impreso. Al enviar la solicitud puede descargar una constancia PDF (`utilidades/constanciaPdf.js`) con esa información; los administradores generan la misma constancia desde el expediente.
-- **Diseño.** Los colores, espacios y tipografía salen de `estilos/tokens.css`; cada componente usa su propio CSS Module.
+## Responsabilidad de cada capa
 
-## Datos y compatibilidad
+| Capa | Pregunta | Ejemplo | Límite |
+| --- | --- | --- | --- |
+| Presentación | ¿Cómo interactúa el usuario? | Formulario y POST /solicitudes | Sin SQL ni decisiones de aprobación |
+| Aplicación | ¿Qué pasos hay que coordinar? | Leer, comprobar versión, aplicar reglas, guardar y auditar | Sin SQL ni cálculo de segunda aprobación |
+| Negocio | ¿Qué permite el proceso? | Más de Q10,000 requiere otro administrador | Sin HTTP, React, repositorios ni infraestructura |
+| Datos | ¿Cómo consultamos y guardamos? | SELECT parametrizado, INSERT y commit/rollback | Sin decisiones sobre permisos o etapas |
 
-El esquema, sus relaciones y las reglas que garantiza están en [BASE-DE-DATOS.md](BASE-DE-DATOS.md). En resumen: `usuarios` es la única tabla de cuentas (la columna `rol` distingue los tres perfiles), `solicitudes` guarda las cuatro etapas con el formulario en columnas, y todas las relaciones usan el `id`.
+La validación de interfaz ayuda al usuario; el servidor aplica las reglas autorizadas. El tamaño del cuerpo HTTP y el tipo MIME se verifican en presentación. Las condiciones de propiedad y edición de documentos se aplican desde aplicación usando negocio. Las restricciones relacionales siguen en MySQL y sus migraciones.
 
-`PlataformaRepositorio` traduce entre esas tablas y el objeto de estado que usa el servicio (`becas`, `solicitudes`, `horarios`, `descargas`, `actividad`). Las reglas de negocio no dependen de cómo se guardan los datos.
+## Ejemplo completo: aprobar Q15,000
 
-## Concurrencia
+1. Un administrador pulsa aprobar. El cliente envía `POST /api/plataforma/resultados` con usuario, estado, comentario y versión.
+2. `presentacion/rutas.js` identifica `fase4`, obtiene el actor autenticado y llama a `PlataformaServicio.accion()`.
+3. Aplicación abre una transacción a través del repositorio. Datos bloquea el control de versión y carga el estado.
+4. Aplicación comprueba la versión y vuelve a consultar la cuenta para confirmar que siga activa.
+5. `SolicitudesReglas.resultado()` exige revisión aprobada, entrevista realizada y cupos. Al superar Q10,000, establece `pendiente_aprobacion`.
+6. Aplicación pide a datos guardar cambio, auditoría, notificación y correo pendiente dentro de la misma transacción.
+7. El repositorio confirma. Después el despachador puede enviar el correo. La API devuelve el estado actualizado.
+8. La pantalla muestra la segunda aprobación pendiente. Un administrador distinto debe completarla; la regla está en `segundaAprobacion()`.
 
-Cada operación de negocio incluye la versión leída por el cliente. El servidor bloquea `control_plataforma` dentro de una transacción, comprueba esa versión y aplica los cambios. Un cliente desactualizado recibe HTTP 409. La conexión se libera tanto al confirmar como al revertir.
+Si una regla rechaza el cambio, se revierte la transacción. Si falla el transporte de correo, el cambio confirmado permanece y el envío puede reintentarse.
 
-Este bloqueo global conserva el contrato del frontend y evita reservas o cupos inconsistentes. Es una decisión de compatibilidad para el volumen actual, no una arquitectura de alta concurrencia. Si crece el tráfico, el siguiente cambio es versionar cada solicitud y bloquear únicamente el horario o programa implicado.
+## Cómo se mantienen los límites
 
-Las lecturas del estado son consistentes y se cachean en el navegador durante 15 segundos. Los conflictos fuerzan una nueva lectura. El repositorio escribe únicamente los registros modificados; las lecturas del panel todavía agregan las colecciones completas. La paginación y las consultas específicas por vista quedan como mejora posterior para grandes volúmenes.
+- Las rutas reciben servicios construidos; no importan repositorios ni configuración MySQL.
+- Los servicios reciben repositorios por constructor: MySQL en producción y memoria en pruebas y demo.
+- Negocio recibe datos en memoria y cambia esos objetos; no recibe conexiones ni transacciones.
+- El SQL del flujo normal está en datos. Migraciones y diagnósticos son scripts operativos y pueden contener SQL.
+- `iniciar.js` es el punto de composición: conoce las capas para conectarlas.
+- `pruebas/capas.test.js` detecta imports prohibidos y SQL en presentación, aplicación o negocio. Complementa la revisión humana.
 
-## Convenciones
+## Cambios realizados
 
-- Código y documentación propios en español; se conservan nombres del lenguaje, librerías, métodos HTTP y contratos existentes como `login`, `password` y `admin`.
-- Los comentarios explican decisiones, límites o reglas; no repiten cada instrucción.
-- No se introduce SQL en servicios ni lógica de permisos en el navegador.
-- Los datos sensibles no se registran en consola. Los errores inesperados incluyen un identificador de seguimiento.
-- No se cambian migraciones ya aplicadas: se añade un archivo nuevo.
-- Los handlers existentes de las vistas usan funciones globales por compatibilidad. Las operaciones y la navegación ya no se sustituyen dinámicamente.
+- Carpetas explícitas y reglas distribuidas por responsabilidad.
+- Validación de cuentas separada de autenticación y de algoritmos de seguridad.
+- Permisos de documentos trasladados desde el repositorio hacia aplicación y negocio.
+- Comité convertido a módulos ES y conectado a la misma transacción. Su INSERT usa las columnas reales de `005-comites.sql`.
+- Ruta `/becas/:id/comite` con extracción real del identificador.
+- `005-comites.sql` incorporado al migrador sin modificar su contenido ni migraciones anteriores.
+- Asignación repetida sin otra relación idéntica a través del servicio, protegido por el bloqueo global.
+- Pruebas de documentos, comités y límites de capas.
 
-## Referencias técnicas
+La asignación de comités está disponible por API y en el mapa de operaciones del cliente. No se agregó una pantalla de gestión de comités.
 
-- [Pool y consultas preparadas de mysql2](https://sidorares.github.io/node-mysql2/docs/examples/connections/create-pool).
-- [Servidor HTTP de Node.js](https://nodejs.org/api/http.html).
+## Límites conservados
+
+Se conservan el modelo de estado completo, la versión global, el bloqueo de `control_plataforma` y la caché de 15 segundos. Esta reorganización mejora claridad y separación; no es una optimización de alta concurrencia. Después pueden incorporarse consultas paginadas, consultas por usuario y versiones por solicitud. El repositorio principal aún reúne varias tablas y seguimiento; se puede dividir si crece.
+
+## Ejecutar y comprobar
+
+```powershell
+npm ci
+npm test
+npm run verificar
+npm run build
+```
+
+Demo sin MySQL: `npm run demo`; abrir `http://localhost:4173`. Cuentas: `alejandro`, `maria`, `admin`, `admin2`, `superadmin`; contraseña `123`, exclusiva de la demo. Los datos se pierden al detenerla y los correos se guardan como archivos locales.
+
+Para MySQL: copiar `.env.example` a `.env`, completar credenciales y seguir el README. Ejecutar `npm run migrar` antes de iniciar: ahora incluye comités. La integración real, `npm run test:integracion`, exige una base vacía cuyo nombre termine en `_pruebas`.
+
+Consultar también [GUIA-PRESENTACION.md](GUIA-PRESENTACION.md) y [VERIFICACION.md](VERIFICACION.md).

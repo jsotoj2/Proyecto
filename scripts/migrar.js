@@ -1,9 +1,9 @@
 import fs from 'node:fs/promises';
 import { createHash } from 'node:crypto';
-import { crearConexion } from '../servidor/configuracion/conexion.js';
+import { crearConexion } from '../servidor/infraestructura/configuracion/conexion.js';
 
 const directorio = new URL('../base-datos/', import.meta.url);
-const ARCHIVOS_MIGRACION = ['001-usuarios.sql', '002-becas.sql', '003-solicitudes.sql', '004-seguimiento.sql'];
+const ARCHIVOS_MIGRACION = ['001-usuarios.sql', '002-becas.sql', '003-solicitudes.sql', '004-seguimiento.sql', '005-comites.sql'];
 
 export async function migrar(conexion) {
     const exclusiva = await conexion.getConnection();

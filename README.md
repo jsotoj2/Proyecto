@@ -1,8 +1,14 @@
 # Plataforma de Becas Nacionales
 
-Proyecto reorganizado con Node.js, JavaScript y MySQL. Incluye acceso, registro, paneles por rol, solicitudes, entrevistas, documentos y administración de cupos.
+Proyecto organizado en cuatro capas lógicas: presentación, aplicación, negocio y datos, con Node.js, JavaScript y MySQL. Incluye acceso, registro, paneles por rol, solicitudes, entrevistas, documentos y administración de cupos.
 
 La aplicación activa está en `cliente/` (interfaz React con Vite) y `servidor/` (API Node.js). `legado/` conserva los archivos anteriores como referencia, incluida la interfaz HTML previa en `legado/publico-html/`; no se usa al iniciar el servidor.
+
+## Entender y explicar el proyecto
+
+Empieza por [la arquitectura](documentacion/ARQUITECTURA.md), [el esquema visual](documentacion/ESQUEMA-ARQUITECTURA.png) y [el guion para presentar](documentacion/GUIA-PRESENTACION.md). Las reglas trabajan con objetos; aplicación consulta tanto negocio como datos. No son cuatro servidores independientes.
+
+La copia reorganizada requiere ejecutar `npm run migrar` antes de `npm start`: ahora el migrador incluye `005-comites.sql`. La asignación de comités está disponible por API; no incluye una pantalla nueva.
 
 ## Requisitos
 
@@ -144,11 +150,13 @@ cliente/                  Interfaz React (Vite)
   src/utilidades/         Formatos, reglas de presentación y constancia PDF
   src/estilos/            Tokens de diseño y estilos base
 servidor/
-  api/                    Rutas y respuestas HTTP
-  configuracion/          Variables y pool MySQL
-  repositorios/           Consultas y transacciones
-  servicios/              Autenticación y reglas de negocio
-  correo/                 Plantillas, transportes y despachador de correos
+  presentacion/           API HTTP: rutas, JSON, cookies y respuestas
+  aplicacion/             Coordinación de casos de uso y transacciones
+  negocio/                Reglas de becas, solicitudes, entrevistas y documentos
+  datos/                  Repositorios SQL y persistencia
+  infraestructura/        Configuración, correo y algoritmos de seguridad
+  compartido/             Errores esperados entre capas
+  iniciar.js              Construcción y conexión de las capas
 base-datos/               Migraciones y catálogo inicial
 scripts/                  Comandos de operación
 pruebas/                  Pruebas automatizadas

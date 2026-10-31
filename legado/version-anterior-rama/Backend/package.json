@@ -1,0 +1,19 @@
+{
+  "name": "becas-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Conexion inicial del proyecto de becas a MySQL",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "probar-db": "node --env-file=.env probarConexion.js",
+    "iniciar-db": "node --env-file=.env iniciarBaseDatos.js",
+    "start": "node --env-file=.env servidor.js",
+    "crear-admin": "node --env-file=.env crearAdministrador.js"
+  },
+  "dependencies": {
+    "mysql2": "^3.24.5"
+  }
+}

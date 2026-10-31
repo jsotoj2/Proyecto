@@ -12,6 +12,8 @@ export class RepositorioPrueba {
         this.bitacora = [];
         this.avisos = [];
         this.correos = [];
+        this.archivos = new Map();
+        this.asignacionesComite = [];
     }
     async leerEstado() { return structuredClone({ datos: this.datos, usuarios: this.usuarios, version: this.version }); }
     async leerEstadoBloqueado() { return this.leerEstado(); }
@@ -37,11 +39,26 @@ export class RepositorioPrueba {
     async marcarCorreoFallido(id, error, { definitivo, esperaSegundos }) {
         Object.assign(this.correos.find(c => c.id === id), { estado: definitivo ? 'fallido' : 'pendiente', ultimoError: String(error), disponible: Date.now() + esperaSegundos * 1000 });
     }
-    async documentos() { return []; }
-    async documento() { return null; }
+    async documentos(usuarioId = null) {
+        return [...this.archivos.entries()].filter(([, d]) => usuarioId === null || Number(d.usuario_id) === usuarioId)
+            .map(([solicitud_id, d]) => ({ solicitud_id, nombre: d.nombre }));
+    }
+    async documento(id) { return this.archivos.get(id) ?? null; }
+    async buscarSolicitudDocumento(id) {
+        const solicitud = this.datos.solicitudes.find(s => s.id === id);
+        if (!solicitud) return null;
+        return { usuario_id: this.usuarios.find(u => u.usuario === solicitud.usuario).id, revision: solicitud.fase2.estado };
+    }
+    async guardarDocumento(id, nombre, contenido) {
+        const solicitud = await this.buscarSolicitudDocumento(id);
+        this.archivos.set(id, { usuario_id: solicitud.usuario_id, nombre, contenido: Buffer.from(contenido) });
+    }
+    async asignarComite(becaId, tipoComite) {
+        if (!this.asignacionesComite.some(a => a.becaId === becaId && a.tipoComite === tipoComite)) this.asignacionesComite.push({ becaId, tipoComite });
+    }
     async transaccion(operacion) {
-        const respaldo = { ...await this.leerEstado(), bitacora: structuredClone(this.bitacora), avisos: structuredClone(this.avisos), correos: structuredClone(this.correos) };
+        const respaldo = { ...await this.leerEstado(), bitacora: structuredClone(this.bitacora), avisos: structuredClone(this.avisos), correos: structuredClone(this.correos), archivos: new Map(this.archivos), asignacionesComite: structuredClone(this.asignacionesComite) };
         try { return await operacion(this); }
-        catch (error) { Object.assign(this, { datos: respaldo.datos, usuarios: respaldo.usuarios, version: respaldo.version, bitacora: respaldo.bitacora, avisos: respaldo.avisos, correos: respaldo.correos }); throw error; }
+        catch (error) { Object.assign(this, { datos: respaldo.datos, usuarios: respaldo.usuarios, version: respaldo.version, bitacora: respaldo.bitacora, avisos: respaldo.avisos, correos: respaldo.correos, archivos: respaldo.archivos, asignacionesComite: respaldo.asignacionesComite }); throw error; }
     }
 }

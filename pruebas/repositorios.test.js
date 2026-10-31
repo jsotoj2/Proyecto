@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { UsuariosRepositorio } from '../servidor/repositorios/usuariosRepositorio.js';
-import { configuracionMySQL } from '../servidor/configuracion/mysql.js';
+import { UsuariosRepositorio } from '../servidor/datos/usuariosRepositorio.js';
+import { configuracionMySQL } from '../servidor/infraestructura/configuracion/mysql.js';
 
 test('la transacción confirma y libera la conexión', async () => {
     const llamadas = [];

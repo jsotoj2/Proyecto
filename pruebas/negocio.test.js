@@ -1,8 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { AutenticacionServicio, hashPassword, verificarPassword, hashToken, validarCuenta } from '../servidor/servicios/autenticacionServicio.js';
-import { PlataformaServicio } from '../servidor/servicios/plataformaServicio.js';
-import { fechaHorario, numero } from '../servidor/servicios/validaciones.js';
+import { AutenticacionServicio } from '../servidor/aplicacion/autenticacionServicio.js';
+import { hashPassword, verificarPassword, hashToken } from '../servidor/infraestructura/seguridad.js';
+import { validarCuenta } from '../servidor/negocio/cuentas.js';
+import { PlataformaServicio } from '../servidor/aplicacion/plataformaServicio.js';
+import { fechaHorario, numero } from '../servidor/negocio/validaciones.js';
 import { RepositorioPrueba, aspirante, administrador, superior, formulario } from './soporte.js';
 
 test('crear becas exige superadmin y las publica para los aspirantes', async () => {

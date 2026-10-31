@@ -1,6 +1,6 @@
 let conexion;
 try {
-    const { crearConexion } = await import('../servidor/configuracion/conexion.js');
+    const { crearConexion } = await import('../servidor/infraestructura/configuracion/conexion.js');
     conexion = crearConexion();
     const [filas] = await conexion.query('SELECT 1 AS ok');
     // mysql2 puede devolver enteros grandes como texto según su configuración.

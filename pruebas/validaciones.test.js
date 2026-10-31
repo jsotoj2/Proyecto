@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validarCuenta, validarCorreo, validarNombre } from '../servidor/servicios/autenticacionServicio.js';
-import { PlataformaServicio } from '../servidor/servicios/plataformaServicio.js';
+import { validarCuenta, validarCorreo, validarNombre } from '../servidor/negocio/cuentas.js';
+import { PlataformaServicio } from '../servidor/aplicacion/plataformaServicio.js';
 import { RepositorioPrueba, aspirante, formulario } from './soporte.js';
 
 const cuenta = { usuario: 'maria.lopez', nombre: 'María López', correo: 'maria@correo.gt', dpi: '1234567890123', password: 'Segura-2026' };

@@ -3,7 +3,7 @@
  * a la base de DB_NAME con el esquema actual. Solo lee la base de origen; la de destino debe estar vacía.
  * Uso: npm run trasladar -- becas_app
  */
-import { crearConexion } from '../servidor/configuracion/conexion.js';
+import { crearConexion } from '../servidor/infraestructura/configuracion/conexion.js';
 import { migrar } from './migrar.js';
 
 const origenNombre = process.argv[2];

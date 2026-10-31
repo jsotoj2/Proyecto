@@ -15,7 +15,8 @@ export const OPERACIONES = Object.freeze({
     'segunda-aprobacion': ['POST', 'aprobaciones'],
     cupos: ['PATCH', 'cupos'],
     'crear-usuario': ['POST', 'usuarios'],
-    'activar-usuario': ['PATCH', 'usuarios/estado']
+    'activar-usuario': ['PATCH', 'usuarios/estado'],
+    'asignar-comite': ['POST', 'becas/comite']
 });
 
 export class ErrorApi extends Error {

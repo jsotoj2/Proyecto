@@ -1,8 +1,9 @@
 import readline from 'node:readline';
 import { Writable } from 'node:stream';
 import fs from 'node:fs/promises';
-import { validarCuenta, hashPassword } from '../servidor/servicios/autenticacionServicio.js';
-import { PlataformaRepositorio } from '../servidor/repositorios/plataformaRepositorio.js';
+import { validarCuenta } from '../servidor/negocio/cuentas.js';
+import { hashPassword } from '../servidor/infraestructura/seguridad.js';
+import { PlataformaRepositorio } from '../servidor/datos/plataformaRepositorio.js';
 
 let conexion;
 let interfaz;
@@ -38,7 +39,7 @@ try {
         await fs.writeFile(new URL('../administrador.local.sql', import.meta.url), sql, { flag: 'wx', mode: 0o600 });
         console.log('SQL generado en administrador.local.sql. No lo publiques. Usa ese archivo en tu base migrada.');
     } else {
-        const { crearConexion } = await import('../servidor/configuracion/conexion.js');
+        const { crearConexion } = await import('../servidor/infraestructura/configuracion/conexion.js');
         conexion = crearConexion();
         const repositorio = new PlataformaRepositorio(conexion);
         await repositorio.comprobarEsquema();

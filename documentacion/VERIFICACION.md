@@ -1,24 +1,30 @@
-# Verificación de la entrega
+# Verificación de la reorganización por capas
 
-Fecha: 14 de octubre de 2026.
+Fecha: 30 de octubre de 2026. Entorno: Windows, Node.js v24.21.0.
 
-## Comprobado
+## Resultados
 
-- 13 pruebas automatizadas aprobadas con `node:test`: permisos, contraseñas scrypt, sesiones, validación, etapas, conflictos de versión, transacciones, consultas parametrizadas, configuración y cliente HTTP.
-- Manejadores HTTP probados mediante streams inyectados: sesión requerida, origen, JSON, tamaño máximo, rutas explícitas y protección de archivos privados. Esta comprobación no requiere abrir un puerto.
-- Sintaxis de todos los archivos JavaScript activos comprobada.
-- Interfaz comprobada con Chromium y API simulada: 8 vistas de aspirante, 8 de administrador y 11 de superadministrador, a 390, 768 y 1440 píxeles.
-- Registro modal, mostrar contraseña, navegación, menú móvil y siguiente paso comprobados sin errores JavaScript ni desbordamientos horizontales.
+- `npm test`: 35 pruebas del servidor y 13 del cliente aprobadas; 48 en total.
+- `npm run verificar`: sintaxis del JavaScript activo comprobada.
+- `npm run build`: interfaz React compilada con Vite.
+- `node scripts/demo.js`: inicio del servidor de demo confirmado; detenido después de comprobarlo.
+- Manejadores HTTP probados con streams, incluyendo el identificador dinámico de la ruta de comités.
+- Prueba de dependencias para límites entre capas, ausencia de imports de infraestructura en negocio y SQL fuera de datos.
+- Nuevas pruebas de documentos propios, acceso ajeno rechazado, solicitudes revisadas, cuentas desactivadas, rollback, permisos de comités y asignación repetida.
 
-## Pendiente de ejecutar en el entorno de destino
+Se usaron dependencias incluidas en el ZIP original para estas comprobaciones. El ZIP de entrega excluye `node_modules`; en destino se debe ejecutar `npm ci`.
 
-- Instalar las dependencias con `npm ci`.
-- Ejecutar la suite con Node.js 22 o superior. La instalación disponible para las pruebas de código de esta sesión fue Node.js 20.20.0.
-- Probar la conexión con credenciales reales y aplicar las migraciones primero sobre una copia de la base.
-- Ejecutar `npm run test:integracion` sobre una base de pruebas vacía.
-- Crear el primer administrador con el asistente o con el SQL generado.
-- Verificar login y operaciones del navegador contra el servidor real y revisar HTTPS en el despliegue.
+## Pendiente en destino
 
-La descarga de paquetes falló por resolución de red. La política de aprobación rechazó el intento de ejecutar la instalación fuera del entorno restringido. No se sustituyó mysql2 por otro conector ni se modificaron datos reales.
+- `npm run test:integracion` con MySQL real: no se ejecutó sin una base de pruebas configurada.
+- Aplicación real de `005-comites.sql`: conectada al migrador, sin ejecución sobre datos del usuario en esta sesión.
+- Confirmar SMTP real, HTTPS y credenciales de despliegue.
+- Inspección visual manual en navegador. La interfaz compiló y sus 13 pruebas pasaron; no hubo revisión visual en esta entrega.
 
-La prueba de integración incluida verifica migraciones repetibles, persistencia, sesión y dos escrituras concurrentes con la misma versión. Está preparada, pero **no fue ejecutada** durante esta entrega. Las pruebas de repositorios unitarias usan dobles; no certifican el comportamiento de un MySQL real.
+El entorno restringió las conexiones de las herramientas de línea de comandos a localhost; no se certifica una prueba HTTP a través de sockets. Las pruebas de API usaron streams y el arranque de demo se comprobó por separado.
+
+## Decisiones conservadas
+
+Se conservan los contratos de los flujos anteriores, el estado completo, la versión global, la caché del cliente y el bloqueo de `control_plataforma`. El trabajo mejora la separación y comprensión del código; no demuestra capacidad de alta concurrencia.
+
+Los documentos históricos de `legado/` corresponden a implementaciones anteriores. Esta verificación describe únicamente la copia reorganizada.

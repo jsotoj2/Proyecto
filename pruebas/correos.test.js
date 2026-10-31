@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { PlataformaServicio } from '../servidor/servicios/plataformaServicio.js';
-import { correoDeEtapa } from '../servidor/correo/plantillas.js';
-import { crearDespachador } from '../servidor/correo/despachador.js';
-import { transporteCorreo } from '../servidor/configuracion/correo.js';
+import { PlataformaServicio } from '../servidor/aplicacion/plataformaServicio.js';
+import { correoDeEtapa } from '../servidor/infraestructura/correo/plantillas.js';
+import { crearDespachador } from '../servidor/infraestructura/correo/despachador.js';
+import { transporteCorreo } from '../servidor/infraestructura/configuracion/correo.js';
 import { RepositorioPrueba, administrador, aspirante, formulario } from './soporte.js';
 
 test('cada cambio de etapa deja un correo para el aspirante, con enlace al panel', async () => {

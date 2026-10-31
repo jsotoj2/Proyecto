@@ -79,5 +79,5 @@ El límite de intentos de acceso es de 15 por minuto e IP en cada proceso. Un de
 ## Correos de notificación
 
 - Al cambiar el estado resumido de una solicitud se crea la notificación y, en la misma transacción, una fila en `correos_salientes` con el asunto, el texto y el HTML del correo para el aspirante.
-- `servidor/correo/despachador.js` reclama los pendientes con `FOR UPDATE SKIP LOCKED` (varios procesos no envían el mismo correo), los envía y los marca como `enviado`. Un fallo vuelve a `pendiente` con espera de 1, 2, 4… minutos; al quinto intento queda `fallido` con `ultimo_error`.
-- El transporte se elige con `CORREO_TRANSPORTE` (`smtp`, `archivo` o `desactivado`); ver `servidor/configuracion/correo.js`.
+- `servidor/infraestructura/correo/despachador.js` reclama los pendientes con `FOR UPDATE SKIP LOCKED` (varios procesos no envían el mismo correo), los envía y los marca como `enviado`. Un fallo vuelve a `pendiente` con espera de 1, 2, 4… minutos; al quinto intento queda `fallido` con `ultimo_error`.
+- El transporte se elige con `CORREO_TRANSPORTE` (`smtp`, `archivo` o `desactivado`); ver `servidor/infraestructura/configuracion/correo.js`.

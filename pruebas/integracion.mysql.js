@@ -1,10 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { crearConexion } from '../servidor/configuracion/conexion.js';
+import { crearConexion } from '../servidor/infraestructura/configuracion/conexion.js';
 import { migrar } from '../scripts/migrar.js';
-import { PlataformaRepositorio } from '../servidor/repositorios/plataformaRepositorio.js';
-import { PlataformaServicio } from '../servidor/servicios/plataformaServicio.js';
-import { AutenticacionServicio, hashPassword } from '../servidor/servicios/autenticacionServicio.js';
+import { PlataformaRepositorio } from '../servidor/datos/plataformaRepositorio.js';
+import { PlataformaServicio } from '../servidor/aplicacion/plataformaServicio.js';
+import { AutenticacionServicio } from '../servidor/aplicacion/autenticacionServicio.js';
+import { hashPassword } from '../servidor/infraestructura/seguridad.js';
 import { formulario } from './soporte.js';
 
 test('MySQL real: migraciones repetibles, autenticación, persistencia y conflicto concurrente', async () => {

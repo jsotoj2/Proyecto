@@ -1,13 +1,14 @@
+import { DocumentosServicio } from './aplicacion/documentosServicio.js';
 import http from 'node:http';
-import { crearConexion } from './configuracion/conexion.js';
-import { enteroConfiguracion } from './configuracion/mysql.js';
-import { PlataformaRepositorio } from './repositorios/plataformaRepositorio.js';
-import { AutenticacionServicio } from './servicios/autenticacionServicio.js';
-import { PlataformaServicio } from './servicios/plataformaServicio.js';
-import { crearRutas } from './api/rutas.js';
-import { crearAplicacion } from './api/aplicacion.js';
-import { transporteCorreo } from './configuracion/correo.js';
-import { crearDespachador } from './correo/despachador.js';
+import { crearConexion } from './infraestructura/configuracion/conexion.js';
+import { enteroConfiguracion } from './infraestructura/configuracion/mysql.js';
+import { PlataformaRepositorio } from './datos/plataformaRepositorio.js';
+import { AutenticacionServicio } from './aplicacion/autenticacionServicio.js';
+import { PlataformaServicio } from './aplicacion/plataformaServicio.js';
+import { crearRutas } from './presentacion/rutas.js';
+import { crearAplicacion } from './presentacion/aplicacion.js';
+import { transporteCorreo } from './infraestructura/configuracion/correo.js';
+import { crearDespachador } from './infraestructura/correo/despachador.js';
 
 let conexion;
 let despachador;
@@ -30,7 +31,7 @@ try {
         console.log('Correos de notificación desactivados: se guardarán en la bandeja de salida.');
     }
     const plataforma = new PlataformaServicio(repositorio, { urlPanel: origen, alEncolarCorreos: () => despachador?.procesar() });
-    const rutas = crearRutas({ autenticacion: new AutenticacionServicio(repositorio), plataforma, repositorio, origen, cookieSegura });
+    const rutas = crearRutas({ autenticacion: new AutenticacionServicio(repositorio), plataforma, documentos: new DocumentosServicio(repositorio), origen, cookieSegura });
     const servidor = http.createServer(crearAplicacion({ rutas, comprobarConexion: () => conexion.execute('SELECT 1') }));
     servidor.requestTimeout = 30000;
     servidor.headersTimeout = 15000;
