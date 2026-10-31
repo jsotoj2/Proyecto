@@ -48,8 +48,8 @@ try {
     };
     process.once('SIGTERM', detener);
     process.once('SIGINT', detener);
-} catch (error) {
-    console.error('No se pudo iniciar la aplicación:', error.code ?? error.message);
+} catch (error) {   
+console.error('No se pudo iniciar la aplicación:', error);
     if (conexion) await conexion.end();
     process.exitCode = 1;
 }
